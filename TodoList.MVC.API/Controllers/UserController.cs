@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
+using TodoList.MVC.API.Requests;
 using DbContext = TodoList.MVC.API.Models.DbContext;
 
 namespace TodoList.MVC.API.Controllers;
@@ -58,9 +59,9 @@ public class UserController : ControllerBase
 
     // POST: api/User
     [HttpPost]
-    public async Task<ActionResult<User>> PostUser(string email, string password)
+    public async Task<ActionResult<User>> PostUser([FromBody] CreateUserRequest request)
     {
-        var user = new User(email, password);
+        var user = new User(request.Email, request.Password);
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
