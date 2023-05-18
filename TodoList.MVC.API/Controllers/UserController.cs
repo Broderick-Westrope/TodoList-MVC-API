@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
 using TodoList.MVC.API.Requests;
-using DbContext = TodoList.MVC.API.Models.DbContext;
 
 namespace TodoList.MVC.API.Controllers;
 
@@ -10,25 +9,25 @@ namespace TodoList.MVC.API.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly DbContext _context;
+    private readonly TodoDbContext _dbContext;
 
-    public UserController(DbContext context)
+    public UserController(TodoDbContext dbContext)
     {
-        _context = context;
+        _dbContext = dbContext;
     }
 
     // GET: api/User
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return await _context.Users.ToListAsync();
+        return await _dbContext.Users.ToListAsync();
     }
 
     // GET: api/User/5
     [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUser(Guid id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _dbContext.Users.FindAsync(id);
 
         if (user == null) return NotFound();
 
@@ -41,11 +40,11 @@ public class UserController : ControllerBase
     {
         if (id != user.Id) return BadRequest();
 
-        _context.Entry(user).State = EntityState.Modified;
+        _dbContext.Entry(user).State = EntityState.Modified;
 
         try
         {
-            await _context.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -63,8 +62,8 @@ public class UserController : ControllerBase
     {
         var user = new User(request.Email, request.Password);
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
     }
@@ -73,17 +72,17 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _dbContext.Users.FindAsync(id);
         if (user == null) return NotFound();
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        _dbContext.Users.Remove(user);
+        await _dbContext.SaveChangesAsync();
 
         return NoContent();
     }
 
     private bool UserExists(Guid id)
     {
-        return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (_dbContext.Users?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }
