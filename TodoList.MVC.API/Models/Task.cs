@@ -1,3 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
 namespace TodoList.MVC.API.Models;
 
 public class Task
@@ -12,6 +16,7 @@ public class Task
         IsCompleted = false;
     }
 
+    [Key]
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Title { get; set; }

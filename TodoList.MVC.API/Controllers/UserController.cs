@@ -14,7 +14,7 @@ namespace TodoList.MVC.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly TodoContext _context;
-        public  Guid CurrentUserId { get; private set; }
+        public static Guid CurrentUserId { get; private set; }
 
         public UserController(TodoContext context)
         {
