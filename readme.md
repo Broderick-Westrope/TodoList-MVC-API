@@ -4,10 +4,10 @@
 
 - [x] Create User
 - [x] Delete User
-- [x] Create Task
-- [x] Update Task
-- [x] Get a list of Tasks
-- [x] Delete Task
+- [ ] Create Task
+- [ ] Update Task
+- [ ] Get a list of Tasks
+- [ ] Delete Task
 - [ ] Create Project
 - [ ] Delete Project
 - [ ] Add Task to Project

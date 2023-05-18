@@ -14,15 +14,27 @@ namespace TodoList.MVC.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly TodoContext _context;
+        public  Guid CurrentUserId { get; private set; }
 
         public UserController(TodoContext context)
         {
             _context = context;
         }
 
+        // GET: api/User
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        {
+          if (_context.Users == null)
+          {
+              return NotFound();
+          }
+          return await _context.Users.ToListAsync();
+        }
+
         // GET: api/User/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(string id)
+        public async Task<ActionResult<User>> GetUser(Guid id)
         {
           if (_context.Users == null)
           {
@@ -38,39 +50,57 @@ namespace TodoList.MVC.API.Controllers
           return user;
         }
 
-        // Create User
+        // PUT: api/User/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutUser(Guid id, User user)
+        {
+            if (id != user.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(user).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
         // POST: api/User
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser(string email, string password)
         {
           if (_context.Users == null)
           {
               return Problem("Entity set 'TodoContext.Users'  is null.");
           }
-          _context.Users.Add(user);
-          try
-          {
-              await _context.SaveChangesAsync();
-          }
-          catch (DbUpdateException)
-          {
-              if (UserExists(user.Email))
-              {
-                  return Conflict();
-              }
-              else
-              {
-                  throw;
-              }
-          }
 
-          return CreatedAtAction("GetUser", new { id = user.Email }, user);
+          var user = new User(email, password);
+          
+          _context.Users.Add(user);
+          await _context.SaveChangesAsync();
+
+          CurrentUserId = user.Id;
+          return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
-        // Delete User
         // DELETE: api/User/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             if (_context.Users == null)
             {
@@ -88,9 +118,9 @@ namespace TodoList.MVC.API.Controllers
             return NoContent();
         }
 
-        private bool UserExists(string id)
+        private bool UserExists(Guid id)
         {
-            return (_context.Users?.Any(e => e.Email == id)).GetValueOrDefault();
+            return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
