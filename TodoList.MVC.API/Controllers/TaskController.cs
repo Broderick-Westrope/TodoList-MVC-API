@@ -82,7 +82,7 @@ namespace TodoList.MVC.API.Controllers
 
         // POST: api/Task
         [HttpPost]
-        public async Task<ActionResult<Task>> PostTask(string title, string description = default, DateTime dueDate = default)
+        public async Task<ActionResult<Task>> PostTask(string title, string description = "", DateTime dueDate = default)
         {
           if (_context.Tasks == null)
           {
