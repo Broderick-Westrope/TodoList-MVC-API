@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using TodoList.MVC.API.Models;
+using DbContext = TodoList.MVC.API.Models.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<TodoContext>(
+builder.Services.AddDbContext<DbContext>(
     opt => opt.UseInMemoryDatabase("TodoList"));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -1,12 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace TodoList.MVC.API.Models;
 
-public class Task
+public class TodoItem
 {
-    public Task(Guid userId, string title, string description = "", DateTime dueDate = default)
+    public TodoItem(Guid userId, string title, string description = "", DateTime dueDate = default)
     {
         Id = Guid.NewGuid();
         UserId = userId;
@@ -16,8 +14,8 @@ public class Task
         IsCompleted = false;
     }
 
-    [Key]
-    public Guid Id { get; set; }
+    [Key] public Guid Id { get; set; }
+
     public Guid UserId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
