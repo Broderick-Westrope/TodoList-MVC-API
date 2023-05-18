@@ -4,7 +4,7 @@
 
 - [x] Create User
 - [x] Delete User
-- [ ] Create Task
+- [x] Create Task
 - [x] Update Task
 - [x] Get a list of Tasks
 - [x] Delete Task
@@ -14,6 +14,7 @@
 - [ ] Remove Task from Project
 - [ ] Delete Tasks when their Project is deleted
 - [ ] Delete Projects & Tasks when their User is deleted
+- [ ] When a Task is removed from a Project, delete the project if it contains no other Tasks
 - [ ] User Sign-In
 - [ ] User Sign-Out
 - [ ] Change User email
