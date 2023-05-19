@@ -4,18 +4,17 @@
 
 - [x] Create User
 - [x] Delete User
-- [x] Create Task
-- [x] Update Task
-- [x] Get a list of Tasks
-- [x] Delete Task
-- [ ] Create Project
-- [ ] Delete Project
-- [ ] Add Task to Project
-- [ ] Remove Task from Project
-- [ ] Delete Tasks when their Project is deleted
-- [ ] Delete Projects & Tasks when their User is deleted
-- [ ] When a Task is removed from a Project, delete the project if it contains no other Tasks
-- [ ] User Sign-In
-- [ ] User Sign-Out
+- [x] Create TodoItem
+- [x] Update TodoItem
+- [x] Get a list of TodoItems
+- [x] Delete TodoItem
+- [x] Create Project
+- [x] Delete Project
+- [x] Create ProjectTodoItemMapping
+- [ ] Delete ProjectTodoItemMapping
+- [ ] Delete ProjectTodoItemMappings when corresponding Project is deleted
+- [ ] Delete TodoItem when corresponding ProjectTodoItemMapping is deleted
+- [ ] Delete Projects when corresponding User is deleted
+- [ ] Delete Project when corresponding all ProjectTodoItemMappings are deleted
 - [ ] Change User email
 - [ ] Change User password
