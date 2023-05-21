@@ -60,7 +60,7 @@ public class ProjectController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Project>> PostProject(CreateProjectRequest request)
     {
-        var project = new Project(request.Title);
+        var project = new Project(request.UserId, request.Title);
 
         _dbContext.Projects.Add(project);
         await _dbContext.SaveChangesAsync();
