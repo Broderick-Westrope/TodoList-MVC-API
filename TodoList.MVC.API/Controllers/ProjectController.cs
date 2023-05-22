@@ -9,25 +9,25 @@ namespace TodoList.MVC.API.Controllers;
 [ApiController]
 public class ProjectController : ControllerBase
 {
-    private readonly TodoDbContext _dbContext;
+    private readonly TodoContext _context;
 
-    public ProjectController(TodoDbContext dbContext)
+    public ProjectController(TodoContext context)
     {
-        _dbContext = dbContext;
+        _context = context;
     }
 
     // GET: api/Project
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
     {
-        return await _dbContext.Projects.ToListAsync();
+        return await _context.Projects.ToListAsync();
     }
 
     // GET: api/Project/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Project>> GetProject(Guid id)
     {
-        var project = await _dbContext.Projects.FindAsync(id);
+        var project = await _context.Projects.FindAsync(id);
 
         if (project == null) return NotFound();
 
@@ -40,11 +40,11 @@ public class ProjectController : ControllerBase
     {
         if (id != project.Id) return BadRequest();
 
-        _dbContext.Entry(project).State = EntityState.Modified;
+        _context.Entry(project).State = EntityState.Modified;
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -62,8 +62,8 @@ public class ProjectController : ControllerBase
     {
         var project = new Project(request.UserId, request.Title);
 
-        _dbContext.Projects.Add(project);
-        await _dbContext.SaveChangesAsync();
+        _context.Projects.Add(project);
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction("GetProject", new { id = project.Id }, project);
     }
@@ -72,17 +72,17 @@ public class ProjectController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProject(Guid id)
     {
-        var project = await _dbContext.Projects.FindAsync(id);
+        var project = await _context.Projects.FindAsync(id);
         if (project == null) return NotFound();
 
-        _dbContext.Projects.Remove(project);
-        await _dbContext.SaveChangesAsync();
+        _context.Projects.Remove(project);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     private bool ProjectExists(Guid id)
     {
-        return (_dbContext.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

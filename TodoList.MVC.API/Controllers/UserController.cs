@@ -9,25 +9,25 @@ namespace TodoList.MVC.API.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly TodoDbContext _dbContext;
+    private readonly TodoContext _context;
 
-    public UserController(TodoDbContext dbContext)
+    public UserController(TodoContext context)
     {
-        _dbContext = dbContext;
+        _context = context;
     }
 
     // GET: api/User
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return await _dbContext.Users.ToListAsync();
+        return await _context.Users.ToListAsync();
     }
 
     // GET: api/User/5
     [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUser(Guid id)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null) return NotFound();
 
@@ -40,11 +40,11 @@ public class UserController : ControllerBase
     {
         if (id != user.Id) return BadRequest();
 
-        _dbContext.Entry(user).State = EntityState.Modified;
+        _context.Entry(user).State = EntityState.Modified;
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -62,8 +62,8 @@ public class UserController : ControllerBase
     {
         var user = new User(request.Email, request.Password);
 
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
     }
@@ -72,17 +72,17 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(id);
         if (user == null) return NotFound();
 
-        _dbContext.Users.Remove(user);
-        await _dbContext.SaveChangesAsync();
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     private bool UserExists(Guid id)
     {
-        return (_dbContext.Users?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

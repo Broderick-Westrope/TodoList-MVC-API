@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TodoList.MVC.API.Models;
 
-public class TodoDbContext : DbContext
+public class TodoContext : DbContext
 {
-    public TodoDbContext(DbContextOptions<TodoDbContext> options) : base(options)
+    public TodoContext(DbContextOptions<TodoContext> options) : base(options)
     {
     }
 

@@ -11,7 +11,7 @@ using TodoList.MVC.API.Models;
 
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
-    [DbContext(typeof(TodoDbContext))]
+    [DbContext(typeof(TodoContext))]
     [Migration("20230519044637_Add UserId to Project.")]
     partial class AddUserIdtoProject
     {

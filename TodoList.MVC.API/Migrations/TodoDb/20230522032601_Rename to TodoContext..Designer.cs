@@ -12,8 +12,8 @@ using TodoList.MVC.API.Models;
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
     [DbContext(typeof(TodoContext))]
-    [Migration("20230518062645_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230522032601_Rename to TodoContext.")]
+    partial class RenametoTodoContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,9 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

@@ -10,7 +10,7 @@ using TodoList.MVC.API.Models;
 
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
-    [DbContext(typeof(TodoDbContext))]
+    [DbContext(typeof(TodoContext))]
     partial class TodoDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

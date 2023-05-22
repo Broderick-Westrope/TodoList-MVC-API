@@ -9,25 +9,25 @@ namespace TodoList.MVC.API.Controllers;
 [ApiController]
 public class TodoItemController : ControllerBase
 {
-    private readonly TodoDbContext _dbContext;
+    private readonly TodoContext _context;
 
-    public TodoItemController(TodoDbContext dbContext)
+    public TodoItemController(TodoContext context)
     {
-        _dbContext = dbContext;
+        _context = context;
     }
 
     // GET: api/TodoItem
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
     {
-        return await _dbContext.TodoItems.ToListAsync();
+        return await _context.TodoItems.ToListAsync();
     }
 
     // GET: api/TodoItem/5
     [HttpGet("{id}")]
     public async Task<ActionResult<TodoItem>> GetTodoItem(Guid id)
     {
-        var todoItem = await _dbContext.TodoItems.FindAsync(id);
+        var todoItem = await _context.TodoItems.FindAsync(id);
 
         if (todoItem == null) return NotFound();
 
@@ -40,11 +40,11 @@ public class TodoItemController : ControllerBase
     {
         if (id != todoItem.Id) return BadRequest();
 
-        _dbContext.Entry(todoItem).State = EntityState.Modified;
+        _context.Entry(todoItem).State = EntityState.Modified;
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -62,8 +62,8 @@ public class TodoItemController : ControllerBase
     {
         var todoItem = new TodoItem(request.UserId, request.Title, request.Description, request.DueDate);
 
-        _dbContext.TodoItems.Add(todoItem);
-        await _dbContext.SaveChangesAsync();
+        _context.TodoItems.Add(todoItem);
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
     }
@@ -72,17 +72,17 @@ public class TodoItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTodoItem(Guid id)
     {
-        var todoItem = await _dbContext.TodoItems.FindAsync(id);
+        var todoItem = await _context.TodoItems.FindAsync(id);
         if (todoItem == null) return NotFound();
 
-        _dbContext.TodoItems.Remove(todoItem);
-        await _dbContext.SaveChangesAsync();
+        _context.TodoItems.Remove(todoItem);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     private bool TodoItemExists(Guid id)
     {
-        return (_dbContext.TodoItems?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (_context.TodoItems?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }
