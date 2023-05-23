@@ -2,14 +2,15 @@ namespace TodoList.MVC.API.Models;
 
 public class TodoItem
 {
-    public TodoItem(Guid userId, string title, string description = "", DateTime dueDate = default)
+    public TodoItem(Guid id, Guid userId, string title, string description = "", DateTime dueDate = default,
+        bool isCompleted = false)
     {
-        Id = Guid.NewGuid();
+        Id = id;
         UserId = userId;
         Title = title;
         Description = description;
         DueDate = dueDate;
-        IsCompleted = false;
+        IsCompleted = isCompleted;
     }
 
     public Guid Id { get; set; }
@@ -18,7 +19,7 @@ public class TodoItem
     public string Description { get; set; }
     public DateTime DueDate { get; set; }
     public bool IsCompleted { get; set; }
-    
+
     //UserId FK
     public Guid UserId { get; set; }
     public User User { get; set; }

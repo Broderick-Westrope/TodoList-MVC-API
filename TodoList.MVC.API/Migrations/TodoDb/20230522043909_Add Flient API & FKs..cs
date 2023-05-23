@@ -1,60 +1,59 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿#nullable disable
 
-#nullable disable
+using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace TodoList.MVC.API.Migrations.TodoDb
+namespace TodoList.MVC.API.Migrations.TodoDb;
+
+/// <inheritdoc />
+public partial class AddFlientAPIFKs : Migration
 {
     /// <inheritdoc />
-    public partial class AddFlientAPIFKs : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.CreateIndex(
-                name: "IX_TodoItems_UserId",
-                table: "TodoItems",
-                column: "UserId");
+        migrationBuilder.CreateIndex(
+            "IX_TodoItems_UserId",
+            "TodoItems",
+            "UserId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Projects_UserId",
-                table: "Projects",
-                column: "UserId");
+        migrationBuilder.CreateIndex(
+            "IX_Projects_UserId",
+            "Projects",
+            "UserId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Projects_Users_UserId",
-                table: "Projects",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+        migrationBuilder.AddForeignKey(
+            "FK_Projects_Users_UserId",
+            "Projects",
+            "UserId",
+            "Users",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Cascade);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_TodoItems_Users_UserId",
-                table: "TodoItems",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-        }
+        migrationBuilder.AddForeignKey(
+            "FK_TodoItems_Users_UserId",
+            "TodoItems",
+            "UserId",
+            "Users",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Cascade);
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Users_UserId",
-                table: "Projects");
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropForeignKey(
+            "FK_Projects_Users_UserId",
+            "Projects");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_TodoItems_Users_UserId",
-                table: "TodoItems");
+        migrationBuilder.DropForeignKey(
+            "FK_TodoItems_Users_UserId",
+            "TodoItems");
 
-            migrationBuilder.DropIndex(
-                name: "IX_TodoItems_UserId",
-                table: "TodoItems");
+        migrationBuilder.DropIndex(
+            "IX_TodoItems_UserId",
+            "TodoItems");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Projects_UserId",
-                table: "Projects");
-        }
+        migrationBuilder.DropIndex(
+            "IX_Projects_UserId",
+            "Projects");
     }
 }

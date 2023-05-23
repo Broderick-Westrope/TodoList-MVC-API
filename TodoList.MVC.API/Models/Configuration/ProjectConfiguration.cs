@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace TodoList.MVC.API.Models;
+namespace TodoList.MVC.API.Models.Configuration;
 
 public class ProjectConfiguration : IEntityTypeConfiguration<Project>
 {

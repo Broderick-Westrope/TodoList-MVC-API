@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Requests;
+using TodoList.MVC.API.Requests.Project;
+using TodoList.MVC.API.Responses.Project;
 
 namespace TodoList.MVC.API.Controllers;
 
@@ -9,42 +10,53 @@ namespace TodoList.MVC.API.Controllers;
 [ApiController]
 public class ProjectController : ControllerBase
 {
-    private readonly TodoContext _context;
+    private readonly TodoContext _todoContext;
 
-    public ProjectController(TodoContext context)
+    public ProjectController(TodoContext todoContext)
     {
-        _context = context;
+        _todoContext = todoContext;
     }
 
     // GET: api/Project
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
     {
-        return await _context.Projects.ToListAsync();
+        var projectList = await _todoContext
+            .Projects
+            .ToListAsync();
+
+        var projects = from p in projectList
+            select new GetProjectResponse(p.Id, p.Title, p.UserId);
+
+        return Ok(new GetAllProjectsResponse(projects.ToList()));
     }
 
     // GET: api/Project/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Project>> GetProject(Guid id)
+    public async Task<ActionResult<GetProjectResponse>> GetProject([FromRoute] Guid id)
     {
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _todoContext
+            .Projects
+            .FindAsync(id);
 
         if (project == null) return NotFound();
 
-        return project;
+        var response = new GetProjectResponse(project.Id, project.Title, project.UserId);
+
+        return Ok(response);
     }
 
     // PUT: api/Project/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutProject(Guid id, Project project)
+    public async Task<IActionResult> PutProject([FromRoute] Guid id, [FromBody] UpdateProjectRequest request)
     {
-        if (id != project.Id) return BadRequest();
-
-        _context.Entry(project).State = EntityState.Modified;
+        _todoContext
+            .Entry(new Project(id, request.UserId, request.Title))
+            .State = EntityState.Modified;
 
         try
         {
-            await _context.SaveChangesAsync();
+            await _todoContext.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -58,31 +70,35 @@ public class ProjectController : ControllerBase
 
     // POST: api/Project
     [HttpPost]
-    public async Task<ActionResult<Project>> PostProject(CreateProjectRequest request)
+    public async Task<ActionResult<CreateProjectResponse>> PostProject([FromBody] CreateProjectRequest request)
     {
-        var project = new Project(request.UserId, request.Title);
+        var projectId = Guid.NewGuid();
 
-        _context.Projects.Add(project);
-        await _context.SaveChangesAsync();
+        _todoContext
+            .Projects
+            .Add(new Project(projectId, request.UserId, request.Title));
+        await _todoContext
+            .SaveChangesAsync();
 
-        return CreatedAtAction("GetProject", new { id = project.Id }, project);
+        return CreatedAtAction(nameof(GetProject), new { id = projectId },
+            new CreateProjectResponse(projectId, request.Title, request.UserId));
     }
 
     // DELETE: api/Project/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProject(Guid id)
+    public async Task<IActionResult> DeleteProject([FromRoute] Guid id)
     {
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _todoContext.Projects.FindAsync(id);
         if (project == null) return NotFound();
 
-        _context.Projects.Remove(project);
-        await _context.SaveChangesAsync();
+        _todoContext.Projects.Remove(project);
+        await _todoContext.SaveChangesAsync();
 
         return NoContent();
     }
 
     private bool ProjectExists(Guid id)
     {
-        return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (_todoContext.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }
