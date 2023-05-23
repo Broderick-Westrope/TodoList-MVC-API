@@ -13,4 +13,9 @@ public class TodoContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<Project> Projects { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+    }
 }

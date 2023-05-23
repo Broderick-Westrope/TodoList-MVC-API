@@ -37,6 +37,8 @@ namespace TodoList.MVC.API.Migrations.TodoDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Projects");
                 });
 
@@ -65,6 +67,8 @@ namespace TodoList.MVC.API.Migrations.TodoDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("TodoItems");
                 });
 
@@ -85,6 +89,35 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TodoList.MVC.API.Models.Project", b =>
+                {
+                    b.HasOne("TodoList.MVC.API.Models.User", "User")
+                        .WithMany("Projects")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoList.MVC.API.Models.TodoItem", b =>
+                {
+                    b.HasOne("TodoList.MVC.API.Models.User", "User")
+                        .WithMany("TodoItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoList.MVC.API.Models.User", b =>
+                {
+                    b.Navigation("Projects");
+
+                    b.Navigation("TodoItems");
                 });
 #pragma warning restore 612, 618
         }

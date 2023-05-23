@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
 using TodoList.MVC.API.Requests;
+using TodoList.MVC.API.Responses;
 
 namespace TodoList.MVC.API.Controllers;
 
@@ -27,7 +28,7 @@ public class TodoItemController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<TodoItem>> GetTodoItem(Guid id)
     {
-        var todoItem = await _context.TodoItems.FindAsync(id);
+        var todoItem =  await  _context.TodoItems.FindAsync(id);
 
         if (todoItem == null) return NotFound();
 
@@ -61,7 +62,7 @@ public class TodoItemController : ControllerBase
     public async Task<ActionResult<TodoItem>> PostTodoItem([FromBody] CreateTodoItemRequest request)
     {
         var todoItem = new TodoItem(request.UserId, request.Title, request.Description, request.DueDate);
-
+        
         _context.TodoItems.Add(todoItem);
         await _context.SaveChangesAsync();
 

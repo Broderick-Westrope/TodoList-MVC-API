@@ -12,8 +12,8 @@ using TodoList.MVC.API.Models;
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
     [DbContext(typeof(TodoContext))]
-    [Migration("20230518062645_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230522043909_Add Flient API & FKs.")]
+    partial class AddFlientAPIFKs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,7 +35,12 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Projects");
                 });
@@ -65,10 +70,12 @@ namespace TodoList.MVC.API.Migrations.TodoDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("TodoItems");
                 });
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserId", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,6 +92,35 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TodoList.MVC.API.Models.Project", b =>
+                {
+                    b.HasOne("TodoList.MVC.API.Models.User", "User")
+                        .WithMany("Projects")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoList.MVC.API.Models.TodoItem", b =>
+                {
+                    b.HasOne("TodoList.MVC.API.Models.User", "User")
+                        .WithMany("TodoItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoList.MVC.API.Models.User", b =>
+                {
+                    b.Navigation("Projects");
+
+                    b.Navigation("TodoItems");
                 });
 #pragma warning restore 612, 618
         }

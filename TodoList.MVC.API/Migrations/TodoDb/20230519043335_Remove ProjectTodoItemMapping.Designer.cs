@@ -68,7 +68,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.ToTable("TodoItems");
                 });
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.User", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserId", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

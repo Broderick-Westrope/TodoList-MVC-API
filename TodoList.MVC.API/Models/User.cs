@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace TodoList.MVC.API.Models;
 
 public class User
@@ -9,10 +7,13 @@ public class User
         Id = Guid.NewGuid();
         Email = email;
         Password = password;
+        TodoItems = new List<TodoItem>();
+        Projects = new List<Project>();
     }
 
-    [Key] public Guid Id { get; set; }
-
+    public Guid Id { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
+    public ICollection<TodoItem>? TodoItems { get; set; }
+    public ICollection<Project> Projects { get; set; }
 }
