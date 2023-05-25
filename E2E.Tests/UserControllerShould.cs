@@ -170,14 +170,14 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         // arrange
         var client = _factory.CreateClient();
         var request = new CreateUserRequest(_userDetails.Email, _userDetails.Password);
-        var response =
-            await (await client.PostAsJsonAsync(Url, request)).Content.ReadFromJsonAsync<CreateUserResponse>();
+        var response =  await client.PostAsJsonAsync("api/User", request);
+        var createUserResponse = await response.Content.ReadFromJsonAsync<CreateUserResponse>();
 
         // act
-        await client.DeleteAsync($"{Url}/{response!.Id}");
+        await client.DeleteAsync($"{Url}/{createUserResponse!.Id}");
 
         // assert
-        var result = await client.GetAsync($"{Url}/{response.Id}");
+        var result = await client.GetAsync($"{Url}/{createUserResponse.Id}");
         result
             .StatusCode
             .Should()

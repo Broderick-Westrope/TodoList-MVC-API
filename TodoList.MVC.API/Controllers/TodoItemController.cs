@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Requests;
 using TodoList.MVC.API.Requests.TodoItem;
 using TodoList.MVC.API.Responses.TodoItem;
 

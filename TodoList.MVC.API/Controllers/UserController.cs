@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Requests;
+using TodoList.MVC.API.Repositories;
 using TodoList.MVC.API.Requests.User;
 using TodoList.MVC.API.Responses.User;
 
@@ -12,23 +12,21 @@ namespace TodoList.MVC.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly TodoContext _todoContext;
+    private readonly IUserRepository _userRepository;
 
-    public UserController(TodoContext todoContext)
+    public UserController(TodoContext todoContext, IUserRepository userRepository)
     {
         _todoContext = todoContext;
+        _userRepository = userRepository;
     }
 
     // GET: api/User
     [HttpGet]
     public async Task<ActionResult<GetAllUsersResponse>> GetUsers()
     {
-        var userList = await _todoContext
-            .Users
-            .Include(u => u.TodoItems)
-            .Include(u => u.Projects)
-            .ToListAsync();
+        var userList = await _userRepository.GetAllWithInclude();
 
-        var users = from u in userList
+        var users = from u in userList 
             select new GetUserResponse(u.Id, u.Email, u.Password, u.TodoItems.Select(t => t.Id).ToList(),
                 u.Projects.Select(p => p.Id).ToList());
 
@@ -39,12 +37,7 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid id)
     {
-        //TODO
-        var user = await _todoContext
-            .Users
-            .Include(u => u.TodoItems)
-            .Include(u => u.Projects)
-            .FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _userRepository.GetWithInclude(id);
 
         if (user == null) return NotFound();
 

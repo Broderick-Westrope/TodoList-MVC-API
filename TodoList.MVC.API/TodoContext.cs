@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using TodoList.MVC.API.Domain.Configuration;
+using TodoList.MVC.API.Models;
+using TodoList.MVC.API.Models.Configuration;
 
-namespace TodoList.MVC.API.Models;
+namespace TodoList.MVC.API;
 
 public class TodoContext : DbContext
 {
@@ -11,7 +12,7 @@ public class TodoContext : DbContext
 
     public DbSet<TodoItem> TodoItems { get; set; } = null!;
 
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<User?> Users { get; set; } = null!;
 
     public DbSet<Project> Projects { get; set; } = null!;
 
