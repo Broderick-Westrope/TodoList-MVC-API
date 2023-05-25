@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using TodoList.MVC.API.Models;
@@ -12,11 +13,11 @@ namespace E2E.Tests;
 public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string Url = "api/User";
-
+    
     private readonly WebApplicationFactory<Program> _factory;
-    private readonly User _userDetails = new(Guid.Empty, "Heidi_Cormier91@hotmail.com", "_k7qNLNjR0szIh1");
+    private Guid _userId = Guid.Empty;
 
-
+        
     public UserControllerShould(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
@@ -24,161 +25,170 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     public async void Dispose()
     {
-        await _factory.CreateClient().DeleteAsync($"{Url}/{_userDetails.Id}");
+        await _factory.CreateClient().DeleteAsync($"{Url}/{_userId}");
     }
 
-    [Fact]
-    public async Task GetUser()
+
+    [Theory]
+    [AutoData]
+    public async Task GetUser(CreateUserRequest createUserRequestObj)
     {
         // arrange
         var client = _factory.CreateClient();
-        var createdUser = await client.PostAsJsonAsync(Url,
-            new CreateUserRequest(_userDetails.Email, _userDetails.Password));
-        var createUserResponse = await createdUser.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userDetails.Id = createUserResponse!.Id;
+        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
+        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
+        _userId = createUserResponseObj!.Id;
 
         // act
-        var result = await client.GetAsync($"{Url}/{createUserResponse.Id}");
+        var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
 
         // assert
-        result
+        getResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.OK);
-        var getUserResponse = await result.Content.ReadFromJsonAsync<GetUserResponse>();
-        getUserResponse
+        
+        var getUserResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetUserResponse>();
+        getUserResponseObj
             .Should()
             .NotBeNull();
-        getUserResponse!
+        getUserResponseObj!
             .Id
             .Should()
-            .Be(createUserResponse.Id);
-        getUserResponse
+            .Be(createUserResponseObj.Id);
+        getUserResponseObj
             .Email
             .Should()
-            .Be(createUserResponse.Email);
-        getUserResponse
+            .Be(createUserResponseObj.Email);
+        getUserResponseObj
             .Password
             .Should()
-            .Be(createUserResponse.Password);
+            .Be(createUserResponseObj.Password);
     }
 
-    [Fact]
-    public async Task GetAllUsers()
+    [Theory]
+    [AutoData]
+    public async Task GetAllUsers(CreateUserRequest createUserRequestObj)
     {
         // arrange
         var client = _factory.CreateClient();
-        var createdUser = await client.PostAsJsonAsync(Url,
-            new CreateUserRequest(_userDetails.Email, _userDetails.Password));
-        var createUserResponse = await createdUser.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userDetails.Id = createUserResponse.Id;
+        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
+        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
+        _userId = createUserResponseObj!.Id;
 
         // act
-        var result = await client.GetAsync($"{Url}");
+        var getResponseMsg = await client.GetAsync($"{Url}");
 
         // assert
-        result
+        getResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.OK);
-        var getUserResponse = (await result.Content.ReadFromJsonAsync<GetAllUsersResponse>())?.Users;
-        getUserResponse
+        
+        var getUserResponseObjs = (await getResponseMsg.Content.ReadFromJsonAsync<GetAllUsersResponse>())?.Users;
+        getUserResponseObjs
             .Should()
             .NotBeNull();
-        getUserResponse!
+        getUserResponseObjs!
             .Count
             .Should()
             .BePositive();
-        getUserResponse
+        getUserResponseObjs
             .Should()
             .Contain(x =>
-                x.Id == createUserResponse!.Id && x.Email == createUserResponse.Email &&
-                x.Password == createUserResponse.Password);
+                x.Id == createUserResponseObj.Id && x.Email == createUserResponseObj.Email &&
+                x.Password == createUserResponseObj.Password);
     }
 
-    [Fact]
-    public async Task PostUser()
+    [Theory]
+    [AutoData]
+    public async Task PostUser(CreateUserRequest createUserRequestObj)
     {
         // arrange
         var client = _factory.CreateClient();
-        var request = new CreateUserRequest(_userDetails.Email, _userDetails.Password);
 
         // act
-        var result = await client.PostAsJsonAsync(Url, request);
+        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
 
         // assert
-        result
+        postResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.Created);
-        var response = await result.Content.ReadFromJsonAsync<CreateUserResponse>();
-        response
+        
+        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
+        createUserResponseObj
             .Should()
             .NotBeNull();
-        _userDetails.Id = response!.Id;
-        response
+        _userId = createUserResponseObj!.Id;
+        createUserResponseObj
             .Id
             .Should()
             .NotBeEmpty();
-        response
+        createUserResponseObj
             .Email
             .Should()
-            .Be(request.Email);
-        response
+            .Be(createUserRequestObj.Email);
+        createUserResponseObj
             .Password
             .Should()
-            .Be(request.Password);
+            .Be(createUserRequestObj.Password);
     }
 
-    [Fact]
-    public async Task PutUser()
+    [Theory]
+    [AutoData]
+    public async Task PutUser(CreateUserRequest createUserRequestObj, UpdateUserRequest updateUserRequestObj)
     {
         // arrange
         var client = _factory.CreateClient();
-        var createdUser = await client.PostAsJsonAsync(Url,
-            new CreateUserRequest(_userDetails.Email, _userDetails.Password));
-        var createUserResponse = await createdUser.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userDetails.Id = createUserResponse!.Id;
-        var updatedUser = new UpdateUserRequest("Albert.Marquardt@gmail.com", "21_2I8CDiGRmrCg");
+        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
+        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
+        _userId = createUserResponseObj!.Id;
 
         // act
-        var result = await client.PutAsJsonAsync($"{Url}/{createUserResponse.Id}", updatedUser);
+        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{createUserResponseObj.Id}", updateUserRequestObj);
 
         // assert
-        result
+        putResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.NoContent);
-        var getUserResponse = await (await client.GetAsync($"{Url}/{createUserResponse.Id}")).Content
-            .ReadFromJsonAsync<GetUserResponse>();
-        getUserResponse
+
+        var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
+        var getUserResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetUserResponse>();
+        getUserResponseObj
             .Should()
             .NotBeNull();
-        getUserResponse!
+        getUserResponseObj!
             .Email
             .Should()
-            .Be(updatedUser.Email);
-        getUserResponse
+            .Be(updateUserRequestObj.Email);
+        getUserResponseObj
             .Password
             .Should()
-            .Be(updatedUser.Password);
+            .Be(updateUserRequestObj.Password);
     }
 
-    [Fact]
-    public async Task DeleteUser()
+    [Theory]
+    [AutoData]
+    public async Task DeleteUser(CreateUserRequest createUserRequestObj)
     {
         // arrange
         var client = _factory.CreateClient();
-        var request = new CreateUserRequest(_userDetails.Email, _userDetails.Password);
-        var response =  await client.PostAsJsonAsync("api/User", request);
-        var createUserResponse = await response.Content.ReadFromJsonAsync<CreateUserResponse>();
+        var postResponseMsg =  await client.PostAsJsonAsync(Url, createUserRequestObj);
+        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
 
         // act
-        await client.DeleteAsync($"{Url}/{createUserResponse!.Id}");
+        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{createUserResponseObj!.Id}");
 
         // assert
-        var result = await client.GetAsync($"{Url}/{createUserResponse.Id}");
-        result
+        deleteResponseMsg
+            .StatusCode
+            .Should()
+            .Be(HttpStatusCode.NoContent);
+        
+        var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
+        getResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.NotFound);
