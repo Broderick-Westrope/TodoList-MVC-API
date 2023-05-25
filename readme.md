@@ -1,4 +1,4 @@
-# Todo List Project
+# Todo List
 
 ## Use Cases
 
@@ -18,3 +18,11 @@
 - [ ] Delete Project when corresponding all ProjectTodoItemMappings are deleted
 - [ ] Change User email
 - [ ] Change User password
+
+## Tests
+
+```markdown
+Given there is no user named "Brodie Westrope"
+When I send a post request for a user named "Brodie Westrope"
+Then a user is created with the name "Brodie Westrope"
+```

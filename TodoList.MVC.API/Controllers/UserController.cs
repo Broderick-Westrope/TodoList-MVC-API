@@ -18,7 +18,7 @@ public class UserController : ControllerBase
         _todoContext = todoContext;
     }
 
-    // GET: api/UserId
+    // GET: api/User
     [HttpGet]
     public async Task<ActionResult<GetAllUsersResponse>> GetUsers()
     {
@@ -35,7 +35,7 @@ public class UserController : ControllerBase
         return Ok(new GetAllUsersResponse(users.ToList()));
     }
 
-    // GET: api/UserId/5
+    // GET: api/User/5
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid id)
     {
@@ -54,7 +54,7 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
-    // PUT: api/UserId/5
+    // PUT: api/User/5
     [HttpPut("{id}")]
     public async Task<IActionResult> PutUser([FromRoute] Guid id, [FromBody] UpdateUserRequest request)
     {
@@ -76,7 +76,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/UserId
+    // POST: api/User
     [HttpPost]
     public async Task<ActionResult<CreateUserResponse>> PostUser([FromBody] CreateUserRequest request)
     {
@@ -92,7 +92,7 @@ public class UserController : ControllerBase
             new CreateUserResponse(userId, request.Email, request.Password));
     }
 
-    // DELETE: api/UserId/5
+    // DELETE: api/User/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoList.MVC.API", "TodoList.MVC.API\TodoList.MVC.API.csproj", "{549F13EA-6115-4847-8D83-7207A7046EB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2E.Tests", "E2E.Tests\E2E.Tests.csproj", "{687E62F7-DB7E-4CC4-9FD1-2D1358207701}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{549F13EA-6115-4847-8D83-7207A7046EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{549F13EA-6115-4847-8D83-7207A7046EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{549F13EA-6115-4847-8D83-7207A7046EB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687E62F7-DB7E-4CC4-9FD1-2D1358207701}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687E62F7-DB7E-4CC4-9FD1-2D1358207701}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687E62F7-DB7E-4CC4-9FD1-2D1358207701}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687E62F7-DB7E-4CC4-9FD1-2D1358207701}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
