@@ -4,14 +4,18 @@ using TodoList.MVC.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTION_STRING");
+
 // Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(
-    opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTION_STRING")));
+    opt => opt.UseSqlServer(connectionString));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString);
 
 var app = builder.Build();
 
@@ -29,6 +33,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/healthz");
 
 app.Run();
 
