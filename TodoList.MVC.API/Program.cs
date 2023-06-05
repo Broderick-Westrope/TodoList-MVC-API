@@ -15,10 +15,12 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Required outside of dev. env. for Azure API Management
+app.UseSwagger();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
     app.UseSwaggerUI();
 }
 
