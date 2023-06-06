@@ -1,3 +1,5 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API;
 using TodoList.MVC.API.Repositories;
@@ -14,8 +16,6 @@ builder.Services.AddDbContext<TodoContext>(
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHealthChecks()
-    .AddSqlServer(connectionString);
 
 var app = builder.Build();
 
@@ -33,8 +33,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapHealthChecks("/healthz");
 
 app.Run();
 
