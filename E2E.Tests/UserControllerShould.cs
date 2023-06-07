@@ -3,8 +3,6 @@ using System.Net.Http.Json;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Requests;
 using TodoList.MVC.API.Requests.User;
 using TodoList.MVC.API.Responses.User;
 
@@ -13,11 +11,11 @@ namespace E2E.Tests;
 public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string Url = "api/User";
-    
+
     private readonly WebApplicationFactory<Program> _factory;
     private Guid _userId = Guid.Empty;
 
-        
+
     public UserControllerShould(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
@@ -47,7 +45,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.OK);
-        
+
         var getUserResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetUserResponse>();
         getUserResponseObj
             .Should()
@@ -84,7 +82,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.OK);
-        
+
         var getUserResponseObjs = (await getResponseMsg.Content.ReadFromJsonAsync<GetAllUsersResponse>())?.Users;
         getUserResponseObjs
             .Should()
@@ -115,7 +113,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.Created);
-        
+
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
         createUserResponseObj
             .Should()
@@ -175,7 +173,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     {
         // arrange
         var client = _factory.CreateClient();
-        var postResponseMsg =  await client.PostAsJsonAsync(Url, createUserRequestObj);
+        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
 
         // act
@@ -186,7 +184,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.NoContent);
-        
+
         var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
         getResponseMsg
             .StatusCode

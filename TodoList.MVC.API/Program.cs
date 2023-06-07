@@ -1,5 +1,3 @@
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API;
 using TodoList.MVC.API.Repositories;
@@ -23,10 +21,7 @@ var app = builder.Build();
 app.UseSwagger();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwaggerUI();
-}
+if (app.Environment.IsDevelopment()) app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -36,4 +31,6 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program{}
+public partial class Program
+{
+}
