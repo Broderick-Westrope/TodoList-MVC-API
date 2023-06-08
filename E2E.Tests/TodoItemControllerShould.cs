@@ -14,7 +14,6 @@ using TodoList.MVC.API.Responses.User;
 
 namespace E2E.Tests;
 
-//TODO: Change to use dbContext for arrange operations
 public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string Url = "api/TodoItem";
@@ -30,23 +29,32 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
         _todoContext = (TodoContext) _scope.ServiceProvider.GetRequiredService(typeof(TodoContext));
     }
 
+    private async Task AddUser(User user)
+    {
+        _userIds.Push(user.Id);
+        await _todoContext.Users.AddAsync(user);
+        await _todoContext.SaveChangesAsync();
+    }
+
+    private async Task AddTodoItem(TodoItem todoItem)
+    {
+        await _todoContext.TodoItems.AddAsync(todoItem);
+        await _todoContext.SaveChangesAsync();
+    }
+
     [Theory]
     [AutoData]
     //? Better to generate the createTodo values so we dont make a redundant userId value?
-    public async Task GetTodoItem(CreateUserRequest createUserRequestObj, CreateTodoItemRequest createTodoItemRequestObj)
+    //TODO: Continue from here: lazy loading with proxies vs using a DTO for the todoItem values in this test?
+    public async Task GetTodoItem(CreateUserRequest createUserRequestObj, TodoItem todoItem)
     {
         // arrange
-        _userIds.Push(createTodoItemRequestObj.UserId);
-        await _todoContext.AddAsync(new User(createTodoItemRequestObj.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
-        await _todoContext.SaveChangesAsync();
-        
+        await AddUser(new User(todoItem.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
+        await AddTodoItem(todoItem);
         var client = _factory.CreateClient();
-        var postResponseMsg =
-            await client.PostAsJsonAsync(Url, createTodoItemRequestObj);
-        var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
 
         // act
-        var getResponseMsg = await client.GetAsync($"{Url}/{createTodoItemResponseObj.Id}");
+        var getResponseMsg = await client.GetAsync($"{Url}/{todoItem.Id}");
 
         // assert
         getResponseMsg
@@ -61,41 +69,37 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
         getTodoItemResponseObj!
             .Id
             .Should()
-            .Be(createTodoItemResponseObj.Id);
+            .Be(todoItem.Id);
         getTodoItemResponseObj
             .Title
             .Should()
-            .Be(createTodoItemResponseObj.Title);
+            .Be(todoItem.Title);
         getTodoItemResponseObj
             .Description
             .Should()
-            .Be(createTodoItemResponseObj.Description);
+            .Be(todoItem.Description);
         getTodoItemResponseObj
             .DueDate
             .Should()
-            .Be(createTodoItemResponseObj.DueDate);
+            .Be(todoItem.DueDate);
         getTodoItemResponseObj
             .IsCompleted
             .Should()
-            .Be(createTodoItemResponseObj.IsCompleted);
+            .Be(todoItem.IsCompleted);
         getTodoItemResponseObj
             .UserId
             .Should()
-            .Be(createTodoItemResponseObj.UserId);
+            .Be(todoItem.UserId);
     }
     
     [Theory]
     [AutoData]
-    public async Task GetAllTodoItems(CreateUserRequest createUserRequestObj, CreateTodoItemRequest createTodoItemRequestObj)
+    public async Task GetAllTodoItems(CreateUserRequest createUserRequestObj, TodoItem todoItem)
     {
         // arrange
-        _userIds.Push(createTodoItemRequestObj.UserId);
-        await _todoContext.AddAsync(new User(createTodoItemRequestObj.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
-        await _todoContext.SaveChangesAsync();
-
+        await AddUser(new User(todoItem.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
+        await AddTodoItem(todoItem);
         var client = _factory.CreateClient();
-        var postResponseMsg = await client.PostAsJsonAsync(Url, createTodoItemRequestObj);
-        var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
 
         // act
         var getResponseMsg = await client.GetAsync($"{Url}");
@@ -117,12 +121,12 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
         getTodoItemResponseObjs
             .Should()
             .Contain(x =>
-                x.Id == createTodoItemResponseObj.Id && 
-                x.Title == createTodoItemResponseObj.Title &&
-                x.Description == createTodoItemResponseObj.Description && 
-                x.IsCompleted == createTodoItemResponseObj.IsCompleted && 
-                x.DueDate == createTodoItemResponseObj.DueDate &&
-                x.UserId == createTodoItemResponseObj.UserId);
+                x.Id == todoItem.Id && 
+                x.Title == todoItem.Title &&
+                x.Description == todoItem.Description && 
+                x.IsCompleted == todoItem.IsCompleted && 
+                x.DueDate == todoItem.DueDate &&
+                x.UserId == todoItem.UserId);
     }
     
     [Theory]
@@ -130,9 +134,7 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
     public async Task PostTodoItem(CreateUserRequest createUserRequestObj, CreateTodoItemRequest createTodoItemRequestObj)
     {
         // arrange
-        _userIds.Push(createTodoItemRequestObj.UserId);
-        await _todoContext.AddAsync(new User(createTodoItemRequestObj.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
-        await _todoContext.SaveChangesAsync();
+        await AddUser(new User(createTodoItemRequestObj.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
         
         var client = _factory.CreateClient();
 
@@ -149,7 +151,7 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
         createTodoItemResponseObj
             .Should()
             .NotBeNull();
-        createTodoItemResponseObj
+        createTodoItemResponseObj!
             .Id
             .Should()
             .NotBeEmpty();
@@ -177,20 +179,16 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
     
     [Theory]
     [AutoData]
-    public async Task PutTodoItem(CreateUserRequest createUserRequestObj, CreateTodoItemRequest createTodoItemRequestObj, UpdateTodoItemRequest updateTodoItemRequestObj)
+    public async Task PutTodoItem(CreateUserRequest createUserRequestObj, TodoItem todoItem, UpdateTodoItemRequest updateTodoItemRequestObj)
     {
         // arrange
-        _userIds.Push(createTodoItemRequestObj.UserId);
-        await _todoContext.AddAsync(new User(createTodoItemRequestObj.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
-        await _todoContext.SaveChangesAsync();
-
+        await AddUser(new User(todoItem.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
+        await AddTodoItem(todoItem);
         var client = _factory.CreateClient();
-        var postResponseMsg = await client.PostAsJsonAsync(Url, createTodoItemRequestObj);
-        var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
 
         // act
         //? Possible to restrict updateTodoItemRequestObj.UserId to being the same as createTodoItemRequestObj.UserId?
-        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{createTodoItemResponseObj!.Id}", updateTodoItemRequestObj with { UserId = createTodoItemRequestObj.UserId});
+        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{todoItem.Id}", updateTodoItemRequestObj with { UserId = todoItem.UserId});
 
         // assert
         putResponseMsg
@@ -198,7 +196,7 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
             .Should()
             .Be(HttpStatusCode.NoContent);
 
-        var getResponseMsg = await client.GetAsync($"{Url}/{createTodoItemResponseObj.Id}");
+        var getResponseMsg = await client.GetAsync($"{Url}/{todoItem.Id}");
         var getTodoItemResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetTodoItemResponse>();
         getTodoItemResponseObj
             .Should()
@@ -206,7 +204,7 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
         getTodoItemResponseObj!
             .Id
             .Should()
-            .Be(createTodoItemResponseObj.Id);
+            .Be(todoItem.Id);
         getTodoItemResponseObj
             .Title
             .Should()
@@ -226,26 +224,20 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
         getTodoItemResponseObj
             .UserId
             .Should()
-            .Be(createTodoItemRequestObj.UserId);
+            .Be(todoItem.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteTodoItem(CreateUserRequest createUserRequestObj, CreateTodoItemRequest createTodoItemRequestObj)
+    public async Task DeleteTodoItem(CreateUserRequest createUserRequestObj, TodoItem todoItem)
     {
         // arrange
-        //TODO: move to a shared AddUser().
-        _userIds.Push(createTodoItemRequestObj.UserId);
-        await _todoContext.AddAsync(new User(createTodoItemRequestObj.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
-        await _todoContext.SaveChangesAsync();
-
+        await AddUser(new User(todoItem.UserId, createUserRequestObj.Email, createUserRequestObj.Password));
+        await AddTodoItem(todoItem);
         var client = _factory.CreateClient();
-        var postResponseMsg =  await client.PostAsJsonAsync(Url, createTodoItemRequestObj);
-        var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
-        _userIds.Push(createTodoItemResponseObj!.Id);
 
         // act
-        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{createTodoItemResponseObj.Id}");
+        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{todoItem.Id}");
 
         // assert
         deleteResponseMsg
@@ -253,7 +245,7 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
             .Should()
             .Be(HttpStatusCode.NoContent);
         
-        var getResponseMsg = await client.GetAsync($"{Url}/{createTodoItemResponseObj.Id}");
+        var getResponseMsg = await client.GetAsync($"{Url}/{todoItem.Id}");
         getResponseMsg
             .StatusCode
             .Should()

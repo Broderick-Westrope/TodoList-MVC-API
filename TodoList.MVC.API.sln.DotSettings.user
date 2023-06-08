@@ -1,16 +1,14 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/Users/broderickwestrope/Library/Caches/JetBrains/Rider2022.3/resharper-host/temp/Rider/vAny/CoverageData/_TodoList.MVC.API.693727825/Snapshot/snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=139e2864_002D19e4_002D4c49_002D874e_002D425fb00f4906/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetTodoItem" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=41a759ff_002D4ddd_002D4a7b_002Dbfe6_002D72a759d3cbdc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TodoItemControllerShould" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.TodoItemControllerShould.GetTodoItem&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.UserControllerShould&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.TodoItemControllerShould.GetAllTodoItems&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.TodoItemControllerShould.PostUser&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.TodoItemControllerShould.PutUser&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.TodoItemControllerShould.PostTodoItem&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::687E62F7-DB7E-4CC4-9FD1-2D1358207701::net7.0::E2E.Tests.TodoItemControllerShould&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
 	
 	
 	
