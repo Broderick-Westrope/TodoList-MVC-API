@@ -10,12 +10,13 @@ using TodoList.MVC.API.Responses.User;
 
 namespace E2E.Tests;
 
+//TODO: Change to use dbContext for arrange operations. Change to use the same stack & dispose approach as TodoItemControllerShould.cs.
 public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string Url = "api/User";
     
     private readonly WebApplicationFactory<Program> _factory;
-    private Guid _userId = Guid.Empty;
+    private readonly List<Guid> _userIds = new();
 
         
     public UserControllerShould(WebApplicationFactory<Program> factory)
@@ -25,9 +26,11 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     public async void Dispose()
     {
-        await _factory.CreateClient().DeleteAsync($"{Url}/{_userId}");
+        foreach (var userId in _userIds)
+        {
+            await _factory.CreateClient().DeleteAsync($"{Url}/{userId}");
+        }
     }
-
 
     [Theory]
     [AutoData]
@@ -37,7 +40,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         var client = _factory.CreateClient();
         var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userId = createUserResponseObj!.Id;
+        _userIds.Add(createUserResponseObj!.Id);
 
         // act
         var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
@@ -74,7 +77,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         var client = _factory.CreateClient();
         var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userId = createUserResponseObj!.Id;
+        _userIds.Add(createUserResponseObj!.Id);
 
         // act
         var getResponseMsg = await client.GetAsync($"{Url}");
@@ -120,7 +123,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         createUserResponseObj
             .Should()
             .NotBeNull();
-        _userId = createUserResponseObj!.Id;
+        _userIds.Add(createUserResponseObj!.Id);
         createUserResponseObj
             .Id
             .Should()
@@ -143,7 +146,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         var client = _factory.CreateClient();
         var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userId = createUserResponseObj!.Id;
+        _userIds.Add(createUserResponseObj!.Id);
 
         // act
         var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{createUserResponseObj.Id}", updateUserRequestObj);
@@ -177,9 +180,10 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         var client = _factory.CreateClient();
         var postResponseMsg =  await client.PostAsJsonAsync(Url, createUserRequestObj);
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
+        _userIds.Add(createUserResponseObj!.Id);
 
         // act
-        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{createUserResponseObj!.Id}");
+        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{createUserResponseObj.Id}");
 
         // assert
         deleteResponseMsg
