@@ -52,7 +52,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.OK);
-        
+
         var getUserResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetUserResponse>();
         getUserResponseObj
             .Should()
@@ -87,7 +87,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.OK);
-        
+
         var getUserResponseObjs = (await getResponseMsg.Content.ReadFromJsonAsync<GetAllUsersResponse>())?.Users;
         getUserResponseObjs
             .Should()
@@ -119,7 +119,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             .StatusCode
             .Should()
             .Be(HttpStatusCode.Created);
-        
+
         var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
         createUserResponseObj
             .Should()

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +5,7 @@ namespace TodoList.MVC.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class HealthzController: ControllerBase
+public class HealthzController : ControllerBase
 {
     private readonly TodoContext _todoContext;
 
@@ -33,8 +32,7 @@ public class HealthzController: ControllerBase
             results.Add(e.ToString());
             Console.WriteLine(e);
         }
-        
-        return Ok(new {results});
-    }
 
+        return Ok(new { results });
+    }
 }
