@@ -26,7 +26,7 @@ public class UserController : ControllerBase
     {
         var userList = await _userRepository.GetAllWithInclude();
 
-        var users = from u in userList 
+        var users = from u in userList
             select new GetUserResponse(u.Id, u.Email, u.Password, u.TodoItems.Select(t => t.Id).ToList(),
                 u.Projects.Select(p => p.Id).ToList());
 

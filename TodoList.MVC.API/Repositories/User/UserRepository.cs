@@ -3,7 +3,7 @@ using TodoList.MVC.API.Models;
 
 namespace TodoList.MVC.API.Repositories;
 
-public class UserRepository: Repository<User>, IUserRepository
+public class UserRepository : Repository<User>, IUserRepository
 {
     private readonly TodoContext _context;
 
