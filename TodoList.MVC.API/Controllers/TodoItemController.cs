@@ -49,16 +49,18 @@ public class TodoItemController : ControllerBase
 
     // PUT: api/TodoItem/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoItem([FromRoute] Guid id, [FromBody] UpdateTodoItemRequest request)
+    public async Task<IActionResult> PutTodoItem([FromRoute] Guid id, [FromBody] UpdateTodoItemRequest request, 
+        CancellationToken cancellationToken)
     {
-        _todoContext
+        var todoItem =   _todoContext
+            .TodoItems
             .Entry(new TodoItem(id, request.UserId, request.Title, request.Description, request.DueDate,
                 request.IsCompleted))
             .State = EntityState.Modified;
 
         try
         {
-            await _todoContext.SaveChangesAsync();
+            await _todoContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException)
         {
