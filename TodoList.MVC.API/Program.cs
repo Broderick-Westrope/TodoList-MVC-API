@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(
     opt => opt
         // .UseLazyLoadingProxies()
-        .UseSqlServer(connectionString, builder => builder.EnableRetryOnFailure()));
+        .UseSqlServer(connectionString));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();

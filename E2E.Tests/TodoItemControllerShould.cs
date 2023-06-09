@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,6 +15,7 @@ using TodoList.MVC.API.Responses.User;
 
 namespace E2E.Tests;
 
+//TODO: Add cancellation tokens to tests
 public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string Url = "api/TodoItem";
@@ -45,7 +47,7 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
     [Theory]
     [AutoData]
     //? Better to generate the createTodo values so we dont make a redundant userId value?
-    //TODO: Continue from here: lazy loading with proxies vs using a DTO for the todoItem values in this test?
+    //TODO: lazy loading with proxies vs using a DTO for the todoItem values in this test?
     public async Task GetTodoItem(CreateUserRequest createUserRequestObj, TodoItem todoItem)
     {
         // arrange
@@ -188,7 +190,8 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
 
         // act
         //? Possible to restrict updateTodoItemRequestObj.UserId to being the same as createTodoItemRequestObj.UserId?
-        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{todoItem.Id}", updateTodoItemRequestObj with { UserId = todoItem.UserId});
+        var newRequest = updateTodoItemRequestObj with { UserId = todoItem.UserId }; //!Remove after debugging
+        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{todoItem.Id}", newRequest);
 
         // assert
         putResponseMsg
@@ -196,32 +199,32 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
             .Should()
             .Be(HttpStatusCode.NoContent);
 
-        var getResponseMsg = await client.GetAsync($"{Url}/{todoItem.Id}");
-        var getTodoItemResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetTodoItemResponse>();
-        getTodoItemResponseObj
+        var task = _todoContext.TodoItems.FirstOrDefaultAsync(t => t.Id == todoItem.Id);
+        task.Result
             .Should()
             .NotBeNull();
-        getTodoItemResponseObj!
+        var result = task.Result;
+        result!
             .Id
             .Should()
             .Be(todoItem.Id);
-        getTodoItemResponseObj
+        result
             .Title
             .Should()
             .Be(updateTodoItemRequestObj.Title);
-        getTodoItemResponseObj
+        result
             .Description
             .Should()
             .Be(updateTodoItemRequestObj.Description);
-        getTodoItemResponseObj
+        result
             .IsCompleted
             .Should()
             .Be(updateTodoItemRequestObj.IsCompleted);
-        getTodoItemResponseObj
+        result
             .DueDate
             .Should()
             .Be(updateTodoItemRequestObj.DueDate);
-        getTodoItemResponseObj
+        result
             .UserId
             .Should()
             .Be(todoItem.UserId);
@@ -244,19 +247,19 @@ public class TodoItemControllerShould: IClassFixture<WebApplicationFactory<Progr
             .StatusCode
             .Should()
             .Be(HttpStatusCode.NoContent);
-        
-        var getResponseMsg = await client.GetAsync($"{Url}/{todoItem.Id}");
-        getResponseMsg
-            .StatusCode
+
+        var result = await _todoContext.TodoItems.FirstOrDefaultAsync(x=>x.Id == todoItem.Id);
+        result
             .Should()
-            .Be(HttpStatusCode.NotFound);
+            .BeNull();
     }
-    
+
     public async void Dispose()
     {
         while (_userIds.Count > 0)
         {
-            var user = await _todoContext.Users.FirstAsync(x=> x!.Id == _userIds.Pop())!;
+            var userId = _userIds.Pop();
+            var user = await _todoContext.Users.FirstAsync(x=> x!.Id == userId);
             _todoContext.Users.Remove(user);
             await _todoContext.SaveChangesAsync();
         }
