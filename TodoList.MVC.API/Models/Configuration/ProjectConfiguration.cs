@@ -9,7 +9,7 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
     {
         builder.HasKey(p => p.Id);
         builder
-            .HasOne(p => p.User)
+            .HasOne(p => p.UserAggregateRoot)
             .WithMany(u => u.Projects)
             .HasForeignKey(p => p.UserId)
             .OnDelete(DeleteBehavior.Cascade);

@@ -1,8 +1,8 @@
 namespace TodoList.MVC.API.Models;
 
-public class User
+public class UserAggregateRoot
 {
-    public User(Guid id, string email, string password)
+    public UserAggregateRoot(Guid id, string email, string password)
     {
         Id = id;
         Email = email;

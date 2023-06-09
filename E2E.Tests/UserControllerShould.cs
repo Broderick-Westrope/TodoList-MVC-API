@@ -39,7 +39,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         await context.SaveChangesAsync();
     }
 
-    private async Task AddUsersToDb(IEnumerable<User> users)
+    private async Task AddUsersToDb(IEnumerable<UserAggregateRoot> users)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
@@ -58,8 +58,8 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     public async Task GetUser()
     {
         // arrange
-        //TODO: Remove User reference from items & projects, then remove these Without().
-        var user = _fixture.Build<User>()
+        //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects).Create();
 
@@ -83,8 +83,8 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     public async Task GetAllUsers()
     {
         // arrange
-        //TODO: Remove User reference from items & projects, then remove these Without().
-        var users = _fixture.Build<User>()
+        //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
+        var users = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects).CreateMany(3).ToList();
 
@@ -156,8 +156,8 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     public async Task PutUser(UpdateUserRequest updateUserRequestObj)
     {
         // arrange
-        //TODO: Remove User reference from items & projects, then remove these Without().
-        var user = _fixture.Build<User>()
+        //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects).Create();
 
@@ -188,7 +188,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     public async Task DeleteUser()
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects).Create();
 

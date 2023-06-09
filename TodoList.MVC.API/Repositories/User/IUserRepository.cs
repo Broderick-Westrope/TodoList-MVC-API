@@ -2,8 +2,8 @@ using TodoList.MVC.API.Models;
 
 namespace TodoList.MVC.API.Repositories;
 
-public interface IUserRepository : IRepository<User>
+public interface IUserRepository : IRepository<UserAggregateRoot>
 {
-    public Task<User?> GetWithInclude(Guid id);
-    public Task<IEnumerable<User>?> GetAllWithInclude();
+    public Task<UserAggregateRoot?> GetWithInclude(Guid id);
+    public Task<IEnumerable<UserAggregateRoot>?> GetAllWithInclude();
 }

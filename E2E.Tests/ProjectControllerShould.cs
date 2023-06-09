@@ -38,13 +38,13 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         }
     }
 
-    private async Task AddUserToDb(User user)
+    private async Task AddUserToDb(UserAggregateRoot userAggregateRoot)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        _userIds.Push(user.Id);
-        await context.Users.AddAsync(user);
+        _userIds.Push(userAggregateRoot.Id);
+        await context.Users.AddAsync(userAggregateRoot);
         await context.SaveChangesAsync();
     }
 
@@ -66,7 +66,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     {
         // arrange
         //? A way to streamline user creation by making a method that returns the created fixture using the given userId? Worth it?
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, project.UserId).Create();
@@ -93,7 +93,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     public async Task GetAllProjects(Project project)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, project.UserId).Create();
@@ -123,7 +123,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     public async Task PostProject(CreateProjectRequest createProjectRequestObj)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, createProjectRequestObj.UserId).Create();
@@ -149,7 +149,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     public async Task PutProject(UpdateProjectRequest updateProjectRequestObj)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, updateProjectRequestObj.UserId).Create();
@@ -181,7 +181,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     public async Task DeleteProject(Project project)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, project.UserId).Create();

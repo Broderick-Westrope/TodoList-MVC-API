@@ -39,13 +39,13 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         }
     }
 
-    private async Task AddUserToDb(User user)
+    private async Task AddUserToDb(UserAggregateRoot userAggregateRoot)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        _userIds.Push(user.Id);
-        await context.Users.AddAsync(user);
+        _userIds.Push(userAggregateRoot.Id);
+        await context.Users.AddAsync(userAggregateRoot);
         await context.SaveChangesAsync();
     }
 
@@ -68,7 +68,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     {
         // arrange
         //? A way to streamline user creation by making a method that returns the created fixture using the given userId? Worth it?
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, todoItem.UserId).Create();
@@ -98,7 +98,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     public async Task GetAllTodoItems(TodoItem todoItem)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, todoItem.UserId).Create();
@@ -131,7 +131,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     public async Task PostTodoItem(CreateTodoItemRequest createTodoItemRequestObj)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, createTodoItemRequestObj.UserId).Create();
@@ -160,7 +160,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     public async Task PutTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, updateTodoItemRequestObj.UserId).Create();
@@ -194,7 +194,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     public async Task DeleteTodoItem(TodoItem todoItem)
     {
         // arrange
-        var user = _fixture.Build<User>()
+        var user = _fixture.Build<UserAggregateRoot>()
             .Without(x => x.TodoItems)
             .Without(x => x.Projects)
             .With(x => x.Id, todoItem.UserId).Create();

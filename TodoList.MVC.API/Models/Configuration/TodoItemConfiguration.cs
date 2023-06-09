@@ -9,7 +9,7 @@ public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
     {
         builder.HasKey(t => t.Id);
         builder
-            .HasOne(t => t.User)
+            .HasOne(t => t.UserAggregateRoot)
             .WithMany(u => u.TodoItems)
             .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.Cascade);

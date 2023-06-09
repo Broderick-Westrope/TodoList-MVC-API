@@ -20,7 +20,7 @@ public class UserController : ControllerBase
         _userRepository = userRepository;
     }
 
-    // GET: api/User
+    // GET: api/UserAggregateRoot
     [HttpGet]
     public async Task<ActionResult<GetAllUsersResponse>> GetUsers()
     {
@@ -33,7 +33,7 @@ public class UserController : ControllerBase
         return Ok(new GetAllUsersResponse(users.ToList()));
     }
 
-    // GET: api/User/5
+    // GET: api/UserAggregateRoot/5
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid id)
     {
@@ -47,12 +47,12 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
-    // PUT: api/User/5
+    // PUT: api/UserAggregateRoot/5
     [HttpPut("{id}")]
     public async Task<IActionResult> PutUser([FromRoute] Guid id, [FromBody] UpdateUserRequest request)
     {
         _todoContext
-            .Entry(new User(id, request.Email, request.Password))
+            .Entry(new UserAggregateRoot(id, request.Email, request.Password))
             .State = EntityState.Modified;
 
         try
@@ -69,7 +69,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/User
+    // POST: api/UserAggregateRoot
     [HttpPost]
     public async Task<ActionResult<CreateUserResponse>> PostUser([FromBody] CreateUserRequest request)
     {
@@ -77,7 +77,7 @@ public class UserController : ControllerBase
 
         _todoContext
             .Users
-            .Add(new User(userId, request.Email, request.Password));
+            .Add(new UserAggregateRoot(userId, request.Email, request.Password));
         await _todoContext
             .SaveChangesAsync();
 
@@ -85,7 +85,7 @@ public class UserController : ControllerBase
             new CreateUserResponse(userId, request.Email, request.Password));
     }
 
-    // DELETE: api/User/5
+    // DELETE: api/UserAggregateRoot/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {
