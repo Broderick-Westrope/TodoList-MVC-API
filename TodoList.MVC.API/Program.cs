@@ -10,8 +10,12 @@ var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONN
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(
-    opt => opt.UseSqlServer(connectionString));
+    opt => opt
+        // .UseLazyLoadingProxies()
+        .UseSqlServer(connectionString));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

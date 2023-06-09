@@ -22,5 +22,5 @@ public class TodoItem
 
     //UserId FK
     public Guid UserId { get; set; }
-    public User User { get; set; }
+    internal User User { get; set; }
 }

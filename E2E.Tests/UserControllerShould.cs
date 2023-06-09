@@ -3,42 +3,49 @@ using System.Net.Http.Json;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TodoList.MVC.API;
+using TodoList.MVC.API.Models;
+using TodoList.MVC.API.Requests;
 using TodoList.MVC.API.Requests.User;
 using TodoList.MVC.API.Responses.User;
 
 namespace E2E.Tests;
 
+//TODO: Change CreateUserRequest & Guid pairs to use a User option instead (UserAggregate, Fixture, etc?).
 public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string Url = "api/User";
-
     private readonly WebApplicationFactory<Program> _factory;
-    private Guid _userId = Guid.Empty;
-
-
+    private readonly Stack<Guid> _userIds = new();
+    private readonly TodoContext _todoContext;
+    private readonly IServiceScope _scope;
+    
     public UserControllerShould(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
+        _scope = _factory.Services.CreateScope();
+        _todoContext = (TodoContext) _scope.ServiceProvider.GetRequiredService(typeof(TodoContext));
     }
 
-    public async void Dispose()
+    private async Task AddUser(User user)
     {
-        await _factory.CreateClient().DeleteAsync($"{Url}/{_userId}");
+        _userIds.Push(user.Id);
+        await _todoContext.Users.AddAsync(user);
+        await _todoContext.SaveChangesAsync();
     }
-
 
     [Theory]
     [AutoData]
-    public async Task GetUser(CreateUserRequest createUserRequestObj)
+    public async Task GetUser(CreateUserRequest createUserRequestObj, Guid userId)
     {
         // arrange
+        await AddUser(new User(userId, createUserRequestObj.Email, createUserRequestObj.Password));
         var client = _factory.CreateClient();
-        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
-        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userId = createUserResponseObj!.Id;
 
         // act
-        var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
+        var getResponseMsg = await client.GetAsync($"{Url}/{userId}");
 
         // assert
         getResponseMsg
@@ -53,26 +60,24 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         getUserResponseObj!
             .Id
             .Should()
-            .Be(createUserResponseObj.Id);
+            .Be(userId);
         getUserResponseObj
             .Email
             .Should()
-            .Be(createUserResponseObj.Email);
+            .Be(createUserRequestObj.Email);
         getUserResponseObj
             .Password
             .Should()
-            .Be(createUserResponseObj.Password);
+            .Be(createUserRequestObj.Password);
     }
 
     [Theory]
     [AutoData]
-    public async Task GetAllUsers(CreateUserRequest createUserRequestObj)
+    public async Task GetAllUsers(CreateUserRequest createUserRequestObj, Guid userId)
     {
         // arrange
+        await AddUser(new User(userId, createUserRequestObj.Email, createUserRequestObj.Password));
         var client = _factory.CreateClient();
-        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
-        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userId = createUserResponseObj!.Id;
 
         // act
         var getResponseMsg = await client.GetAsync($"{Url}");
@@ -94,8 +99,9 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         getUserResponseObjs
             .Should()
             .Contain(x =>
-                x.Id == createUserResponseObj.Id && x.Email == createUserResponseObj.Email &&
-                x.Password == createUserResponseObj.Password);
+                x.Id == userId && 
+                x.Email == createUserRequestObj.Email && 
+                x.Password == createUserRequestObj.Password);
     }
 
     [Theory]
@@ -118,7 +124,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         createUserResponseObj
             .Should()
             .NotBeNull();
-        _userId = createUserResponseObj!.Id;
+        _userIds.Push(createUserResponseObj!.Id);
         createUserResponseObj
             .Id
             .Should()
@@ -135,60 +141,72 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     [Theory]
     [AutoData]
-    public async Task PutUser(CreateUserRequest createUserRequestObj, UpdateUserRequest updateUserRequestObj)
+    public async Task PutUser(CreateUserRequest createUserRequestObj, Guid userId, UpdateUserRequest updateUserRequestObj)
     {
         // arrange
+        await AddUser(new User(userId, createUserRequestObj.Email, createUserRequestObj.Password));
         var client = _factory.CreateClient();
-        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
-        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        _userId = createUserResponseObj!.Id;
 
         // act
-        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{createUserResponseObj.Id}", updateUserRequestObj);
+        var putResponseMsg = await client.PutAsJsonAsync($"{Url}/{userId}", updateUserRequestObj);
 
         // assert
         putResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.NoContent);
-
-        var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
-        var getUserResponseObj = await getResponseMsg.Content.ReadFromJsonAsync<GetUserResponse>();
-        getUserResponseObj
+        
+        var result = await _todoContext.Users.FirstOrDefaultAsync(u => u!.Id == userId);
+        result
             .Should()
             .NotBeNull();
-        getUserResponseObj!
+        result!
+            .Id
+            .Should()
+            .Be(userId);
+        result
             .Email
             .Should()
             .Be(updateUserRequestObj.Email);
-        getUserResponseObj
+        result
             .Password
             .Should()
             .Be(updateUserRequestObj.Password);
+        //TODO: Add check for todo items and projects once user fixture is made.
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteUser(CreateUserRequest createUserRequestObj)
+    public async Task DeleteUser(CreateUserRequest createUserRequestObj, Guid userId)
     {
         // arrange
+        await AddUser(new User(userId, createUserRequestObj.Email, createUserRequestObj.Password));
         var client = _factory.CreateClient();
-        var postResponseMsg = await client.PostAsJsonAsync(Url, createUserRequestObj);
-        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
 
         // act
-        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{createUserResponseObj!.Id}");
+        var deleteResponseMsg = await client.DeleteAsync($"{Url}/{userId}");
 
         // assert
         deleteResponseMsg
             .StatusCode
             .Should()
             .Be(HttpStatusCode.NoContent);
-
-        var getResponseMsg = await client.GetAsync($"{Url}/{createUserResponseObj.Id}");
-        getResponseMsg
-            .StatusCode
+        
+        var result = await _todoContext.Users.FirstOrDefaultAsync(x=>x.Id == userId);
+        result
             .Should()
-            .Be(HttpStatusCode.NotFound);
+            .BeNull();
+    }
+    
+    public async void Dispose()
+    {
+        while (_userIds.Count > 0)
+        {
+            var userId = _userIds.Pop();
+            var user = await _todoContext.Users.FirstAsync(x=> x!.Id == userId);
+            _todoContext.Users.Remove(user);
+            await _todoContext.SaveChangesAsync();
+        }
+        _scope.Dispose();
     }
 }
