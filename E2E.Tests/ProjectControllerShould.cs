@@ -39,13 +39,13 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         }
     }
 
-    private async Task AddUserToDb(UserAggregateRoot userAggregateRoot)
+    private async Task AddUserToDb(UserAggregate userAggregate)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        _userIds.Push(userAggregateRoot.Id);
-        await context.Users.AddAsync(userAggregateRoot);
+        _userIds.Push(userAggregate.Id);
+        await context.Users.AddAsync(userAggregate);
         await context.SaveChangesAsync();
     }
 
@@ -63,7 +63,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     [Theory]
     [AutoData]
     //! FIXED
-    public async Task GetProject(Project project, UserAggregateRoot user)
+    public async Task GetProject(Project project, UserAggregate user)
     {
         // arrange
         user.Projects.Add(project);
@@ -85,7 +85,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
     [Theory]
     [AutoData]
-    public async Task GetAllProjects(Project project, UserAggregateRoot user)
+    public async Task GetAllProjects(Project project, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
@@ -109,7 +109,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
     [Theory]
     [AutoData]
-    public async Task PostProject(CreateProjectRequest createProjectRequestObj, UserAggregateRoot user)
+    public async Task PostProject(CreateProjectRequest createProjectRequestObj, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
@@ -130,7 +130,7 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
     [Theory]
     [AutoData]
     //! FIXED
-    public async Task PutProject(UpdateProjectRequest updateProjectRequestObj, Project project, UserAggregateRoot user)
+    public async Task PutProject(UpdateProjectRequest updateProjectRequestObj, Project project, UserAggregate user)
     {
         // arrange
         user.Projects.Add(project);
@@ -146,15 +146,15 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = (await context.Users.FirstAsync(x => x.Projects.FirstOrDefault(y => y.Id == project.Id) != null))
-            .Projects.First(x => x.Id == project.Id);
+        // var result = context.Projects.First(x => x.Id == project.Id);
+        var result = (await context.Users.FirstAsync(x => x.Projects.FirstOrDefault(y => y.Id == project.Id) != null)).Projects.First(x => x.Id == project.Id);
         result.Id.Should().Be(project.Id);
         result.Title.Should().Be(updateProjectRequestObj.Title);
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteProject(Project project, UserAggregateRoot user)
+    public async Task DeleteProject(Project project, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);

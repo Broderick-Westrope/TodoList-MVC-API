@@ -20,7 +20,7 @@ public class UserController : ControllerBase
         _userRepository = userRepository;
     }
 
-    // GET: api/UserAggregateRoot
+    // GET: api/UserAggregate
     [HttpGet]
     public async Task<ActionResult<GetAllUsersResponse>> GetUsers()
     {
@@ -33,7 +33,7 @@ public class UserController : ControllerBase
         return Ok(new GetAllUsersResponse(users.ToList()));
     }
 
-    // GET: api/UserAggregateRoot/5
+    // GET: api/UserAggregate/5
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid id)
     {
@@ -47,12 +47,12 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
-    // PUT: api/UserAggregateRoot/5
+    // PUT: api/UserAggregate/5
     [HttpPut("{id}")]
     public async Task<IActionResult> PutUser([FromRoute] Guid id, [FromBody] UpdateUserRequest request)
     {
         _todoContext
-            .Entry(new UserAggregateRoot(id, request.Email, request.Password))
+            .Entry(new UserAggregate(id, request.Email, request.Password))
             .State = EntityState.Modified;
 
         try
@@ -69,7 +69,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/UserAggregateRoot
+    // POST: api/UserAggregate
     [HttpPost]
     public async Task<ActionResult<CreateUserResponse>> PostUser([FromBody] CreateUserRequest request)
     {
@@ -77,7 +77,7 @@ public class UserController : ControllerBase
 
         _todoContext
             .Users
-            .Add(new UserAggregateRoot(userId, request.Email, request.Password));
+            .Add(new UserAggregate(userId, request.Email, request.Password));
         await _todoContext
             .SaveChangesAsync();
 
@@ -85,7 +85,7 @@ public class UserController : ControllerBase
             new CreateUserResponse(userId, request.Email, request.Password));
     }
 
-    // DELETE: api/UserAggregateRoot/5
+    // DELETE: api/UserAggregate/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {

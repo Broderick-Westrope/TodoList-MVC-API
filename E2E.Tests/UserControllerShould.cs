@@ -40,7 +40,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         await context.SaveChangesAsync();
     }
 
-    private async Task AddUsersToDb(IEnumerable<UserAggregateRoot> users)
+    private async Task AddUsersToDb(IEnumerable<UserAggregate> users)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
@@ -57,7 +57,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     [Theory]
     [AutoData]
-    public async Task GetUser(UserAggregateRoot user)
+    public async Task GetUser(UserAggregate user)
     {
         // arrange
         await AddUsersToDb(new[] { user });
@@ -80,8 +80,8 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     public async Task GetAllUsers()
     {
         // arrange
-        //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
-        var users = _fixture.Build<UserAggregateRoot>().CreateMany(3).ToList();
+        //TODO: Remove UserAggregate reference from items & projects, then remove these Without().
+        var users = _fixture.Build<UserAggregate>().CreateMany(3).ToList();
 
         await AddUsersToDb(users);
         var client = _factory.CreateClient();
@@ -148,7 +148,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     [Theory]
     [AutoData]
-    public async Task PutUser(UpdateUserRequest updateUserRequestObj, UserAggregateRoot user)
+    public async Task PutUser(UpdateUserRequest updateUserRequestObj, UserAggregate user)
     {
         // arrange
         await AddUsersToDb(new[] { user });
@@ -176,7 +176,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     [Theory]
     [AutoData]
-    public async Task DeleteUser(UserAggregateRoot user)
+    public async Task DeleteUser(UserAggregate user)
     {
         // arrange
         await AddUsersToDb(new[] { user });

@@ -39,13 +39,13 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         }
     }
 
-    private async Task AddUserToDb(UserAggregateRoot userAggregateRoot)
+    private async Task AddUserToDb(UserAggregate userAggregate)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        _userIds.Push(userAggregateRoot.Id);
-        await context.Users.AddAsync(userAggregateRoot);
+        _userIds.Push(userAggregate.Id);
+        await context.Users.AddAsync(userAggregate);
         await context.SaveChangesAsync();
     }
 
@@ -63,7 +63,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     [Theory]
     [AutoData]
     //? Better to generate the createTodo values so we dont make a redundant userId value?
-    public async Task GetTodoItem(TodoItem todoItem, UserAggregateRoot user)
+    public async Task GetTodoItem(TodoItem todoItem, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
@@ -87,7 +87,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
     [Theory]
     [AutoData]
-    public async Task GetAllTodoItems(TodoItem todoItem, UserAggregateRoot user)
+    public async Task GetAllTodoItems(TodoItem todoItem, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
@@ -114,7 +114,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
     [Theory]
     [AutoData]
-    public async Task PostTodoItem(CreateTodoItemRequest createTodoItemRequestObj, UserAggregateRoot user)
+    public async Task PostTodoItem(CreateTodoItemRequest createTodoItemRequestObj, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
@@ -137,7 +137,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
     [Theory]
     [AutoData]
-    public async Task PutTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj, TodoItem todoItem, UserAggregateRoot user)
+    public async Task PutTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj, TodoItem todoItem, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
@@ -163,7 +163,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
     [Theory]
     [AutoData]
-    public async Task DeleteTodoItem(TodoItem todoItem, UserAggregateRoot user)
+    public async Task DeleteTodoItem(TodoItem todoItem, UserAggregate user)
     {
         // arrange
         await AddUserToDb(user);
