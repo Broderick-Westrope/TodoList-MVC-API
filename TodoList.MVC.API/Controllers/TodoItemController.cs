@@ -26,7 +26,7 @@ public class TodoItemController : ControllerBase
             .ToListAsync();
 
         var todoItems = from t in todoItemList
-            select new GetTodoItemResponse(t.Id, t.Title, t.Description, t.DueDate, t.IsCompleted, t.UserId);
+            select new GetTodoItemResponse(t.Id, t.Title, t.Description, t.DueDate, t.IsCompleted);
 
         return Ok(new GetAllTodoItemsResponse(todoItems.ToList()));
     }
@@ -42,7 +42,7 @@ public class TodoItemController : ControllerBase
         if (todoItem == null) return NotFound();
 
         var response = new GetTodoItemResponse(todoItem.Id, todoItem.Title, todoItem.Description, todoItem.DueDate,
-            todoItem.IsCompleted, todoItem.UserId);
+            todoItem.IsCompleted);
 
         return Ok(response);
     }
@@ -54,7 +54,7 @@ public class TodoItemController : ControllerBase
     {
         var todoItem =   _todoContext
             .TodoItems
-            .Entry(new TodoItem(id, request.UserId, request.Title, request.Description, request.DueDate,
+            .Entry(new TodoItem(id, request.Title, request.Description, request.DueDate,
                 request.IsCompleted))
             .State = EntityState.Modified;
 
@@ -80,13 +80,12 @@ public class TodoItemController : ControllerBase
 
         _todoContext
             .TodoItems
-            .Add(new TodoItem(todoItemId, request.UserId, request.Title, request.Description, request.DueDate));
+            .Add(new TodoItem(todoItemId, request.Title, request.Description, request.DueDate));
         await _todoContext
             .SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetTodoItem), new { id = todoItemId },
-            new CreateTodoItemResponse(todoItemId, request.Title, request.Description, request.DueDate, false,
-                request.UserId));
+            new CreateTodoItemResponse(todoItemId, request.Title, request.Description, request.DueDate));
     }
 
     // DELETE: api/TodoItem/5

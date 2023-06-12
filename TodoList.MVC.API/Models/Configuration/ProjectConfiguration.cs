@@ -7,11 +7,11 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
 {
     public void Configure(EntityTypeBuilder<Project> builder)
     {
-        builder.HasKey(p => p.Id);
-        builder
-            .HasOne(p => p.UserAggregateRoot)
-            .WithMany(u => u.Projects)
-            .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // builder.HasKey(p => p.Id);
+        // builder
+            // .OnDelete(DeleteBehavior.Cascade);
+            // .HasOne(p => p.UserAggregateRoot)
+            // .WithMany(u => u.Projects)
+            // .HasForeignKey(p => p.UserId)
     }
 }

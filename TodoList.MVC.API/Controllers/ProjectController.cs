@@ -26,32 +26,39 @@ public class ProjectController : ControllerBase
             .ToListAsync();
 
         var projects = from p in projectList
-            select new GetProjectResponse(p.Id, p.Title, p.UserId);
+            select new GetProjectResponse(p.Id, p.Title);
 
         return Ok(new GetAllProjectsResponse(projects.ToList()));
     }
 
     // GET: api/Project/5
     [HttpGet("{id}")]
+    //! FIXED
     public async Task<ActionResult<GetProjectResponse>> GetProject([FromRoute] Guid id)
     {
-        var project = await _todoContext
-            .Projects
-            .FindAsync(id);
+        var user = await _todoContext
+            .Users.FirstOrDefaultAsync(x => x.Projects.FirstOrDefault(x => x.Id == id) != null);
 
-        if (project == null) return NotFound();
+        if (user == null) return NotFound();
+        var project = user.Projects.First(x => x.Id == id);
 
-        var response = new GetProjectResponse(project.Id, project.Title, project.UserId);
+        var response = new GetProjectResponse(project.Id, project.Title);
 
         return Ok(response);
     }
 
     // PUT: api/Project/5
     [HttpPut("{id}")]
+    //! FIXED
     public async Task<IActionResult> PutProject([FromRoute] Guid id, [FromBody] UpdateProjectRequest request)
     {
+        var user = await _todoContext.Users.FirstAsync(x => x.Projects.FirstOrDefault(x => x.Id == id) != null);
+
+        var project = user.Projects.First(x => x.Id == id);
+        project.Title = request.Title;
+        
         _todoContext
-            .Entry(new Project(id, request.UserId, request.Title))
+            .Entry(user)
             .State = EntityState.Modified;
 
         try
@@ -76,12 +83,12 @@ public class ProjectController : ControllerBase
 
         _todoContext
             .Projects
-            .Add(new Project(projectId, request.UserId, request.Title));
+            .Add(new Project(projectId, request.Title));
         await _todoContext
             .SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetProject), new { id = projectId },
-            new CreateProjectResponse(projectId, request.Title, request.UserId));
+            new CreateProjectResponse(projectId, request.Title));
     }
 
     // DELETE: api/Project/5

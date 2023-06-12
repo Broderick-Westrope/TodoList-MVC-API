@@ -63,16 +63,9 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
     [Theory]
     [AutoData]
     //? Better to generate the createTodo values so we dont make a redundant userId value?
-    //TODO: lazy loading with proxies vs using a DTO for the todoItem values in this test?
-    public async Task GetTodoItem(TodoItem todoItem)
+    public async Task GetTodoItem(TodoItem todoItem, UserAggregateRoot user)
     {
         // arrange
-        //? A way to streamline user creation by making a method that returns the created fixture using the given userId? Worth it?
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, todoItem.UserId).Create();
-
         await AddUserToDb(user);
         await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();
@@ -90,19 +83,13 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         getTodoItemResponseObj.Description.Should().Be(todoItem.Description);
         getTodoItemResponseObj.DueDate.Should().Be(todoItem.DueDate);
         getTodoItemResponseObj.IsCompleted.Should().Be(todoItem.IsCompleted);
-        getTodoItemResponseObj.UserId.Should().Be(todoItem.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task GetAllTodoItems(TodoItem todoItem)
+    public async Task GetAllTodoItems(TodoItem todoItem, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, todoItem.UserId).Create();
-
         await AddUserToDb(user);
         await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();
@@ -122,20 +109,14 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
                 x.Title == todoItem.Title &&
                 x.Description == todoItem.Description &&
                 x.IsCompleted == todoItem.IsCompleted &&
-                x.DueDate == todoItem.DueDate &&
-                x.UserId == todoItem.UserId);
+                x.DueDate == todoItem.DueDate);
     }
 
     [Theory]
     [AutoData]
-    public async Task PostTodoItem(CreateTodoItemRequest createTodoItemRequestObj)
+    public async Task PostTodoItem(CreateTodoItemRequest createTodoItemRequestObj, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, createTodoItemRequestObj.UserId).Create();
-
         await AddUserToDb(user);
         var client = _factory.CreateClient();
 
@@ -152,21 +133,13 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         createTodoItemResponseObj.Description.Should().Be(createTodoItemRequestObj.Description);
         createTodoItemResponseObj.IsCompleted.Should().Be(false);
         createTodoItemResponseObj.DueDate.Should().Be(createTodoItemRequestObj.DueDate);
-        createTodoItemResponseObj.UserId.Should().Be(createTodoItemRequestObj.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task PutTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj)
+    public async Task PutTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj, TodoItem todoItem, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, updateTodoItemRequestObj.UserId).Create();
-        var todoItem = _fixture.Build<TodoItem>()
-            .With(x => x.UserId, updateTodoItemRequestObj.UserId).Create();
-
         await AddUserToDb(user);
         await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();
@@ -186,19 +159,13 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         result.Description.Should().Be(updateTodoItemRequestObj.Description);
         result.IsCompleted.Should().Be(updateTodoItemRequestObj.IsCompleted);
         result.DueDate.Should().Be(updateTodoItemRequestObj.DueDate);
-        result.UserId.Should().Be(user.Id);
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteTodoItem(TodoItem todoItem)
+    public async Task DeleteTodoItem(TodoItem todoItem, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, todoItem.UserId).Create();
-
         await AddUserToDb(user);
         await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();

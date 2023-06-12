@@ -1,3 +1,3 @@
 namespace TodoList.MVC.API.Requests.Project;
 
-public record UpdateProjectRequest(Guid UserId, string Title);
+public record UpdateProjectRequest(string Title);

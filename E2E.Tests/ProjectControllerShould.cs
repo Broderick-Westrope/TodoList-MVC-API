@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,18 +62,13 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
     [Theory]
     [AutoData]
-    //TODO: lazy loading with proxies vs using a DTO for the project values in this test?
-    public async Task GetProject(Project project)
+    //! FIXED
+    public async Task GetProject(Project project, UserAggregateRoot user)
     {
         // arrange
-        //? A way to streamline user creation by making a method that returns the created fixture using the given userId? Worth it?
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, project.UserId).Create();
-
+        user.Projects.Add(project);
         await AddUserToDb(user);
-        await AddProjectsToDb(new[] { project });
+        // await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();
 
         // act
@@ -85,19 +81,13 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         getProjectResponseObj.Should().NotBeNull();
         getProjectResponseObj!.Id.Should().Be(project.Id);
         getProjectResponseObj.Title.Should().Be(project.Title);
-        getProjectResponseObj.UserId.Should().Be(project.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task GetAllProjects(Project project)
+    public async Task GetAllProjects(Project project, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, project.UserId).Create();
-
         await AddUserToDb(user);
         await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();
@@ -114,20 +104,14 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         getProjectResponseObjs!.Count.Should().BePositive();
         getProjectResponseObjs.Should().Contain(x =>
             x.Id == project.Id &&
-            x.Title == project.Title &&
-            x.UserId == project.UserId);
+            x.Title == project.Title);
     }
 
     [Theory]
     [AutoData]
-    public async Task PostProject(CreateProjectRequest createProjectRequestObj)
+    public async Task PostProject(CreateProjectRequest createProjectRequestObj, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, createProjectRequestObj.UserId).Create();
-
         await AddUserToDb(user);
         var client = _factory.CreateClient();
 
@@ -141,51 +125,38 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         createProjectResponseObj.Should().NotBeNull();
         createProjectResponseObj!.Id.Should().NotBeEmpty();
         createProjectResponseObj.Title.Should().Be(createProjectResponseObj.Title);
-        createProjectResponseObj.UserId.Should().Be(createProjectRequestObj.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task PutProject(UpdateProjectRequest updateProjectRequestObj)
+    //! FIXED
+    public async Task PutProject(UpdateProjectRequest updateProjectRequestObj, Project project, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, updateProjectRequestObj.UserId).Create();
-        var project = _fixture.Build<Project>()
-            .With(x => x.UserId, updateProjectRequestObj.UserId).Create();
-
+        user.Projects.Add(project);
         await AddUserToDb(user);
-        await AddProjectsToDb(new[] { project });
+        //! await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();
 
         // act
-        //? Possible to restrict updateProjectRequestObj.UserId to being the same as createProjectRequestObj.UserId?
-        var putResponseMsg = await client.PutAsJsonAsync($"{ProjectUrl}/{project.Id}",
-            updateProjectRequestObj with { UserId = project.UserId });
+        var putResponseMsg = await client.PutAsJsonAsync($"{ProjectUrl}/{project.Id}", updateProjectRequestObj);
 
         // assert
         putResponseMsg.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.Projects.FirstOrDefaultAsync(p => p.Id == project.Id);
-        result!.Id.Should().Be(project.Id);
+        var result = (await context.Users.FirstAsync(x => x.Projects.FirstOrDefault(y => y.Id == project.Id) != null))
+            .Projects.First(x => x.Id == project.Id);
+        result.Id.Should().Be(project.Id);
         result.Title.Should().Be(updateProjectRequestObj.Title);
-        result.UserId.Should().Be(updateProjectRequestObj.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteProject(Project project)
+    public async Task DeleteProject(Project project, UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, project.UserId).Create();
-
         await AddUserToDb(user);
         await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();

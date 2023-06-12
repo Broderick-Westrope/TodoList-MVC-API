@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,15 +55,11 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         await context.SaveChangesAsync();
     }
 
-    [Fact]
-    public async Task GetUser()
+    [Theory]
+    [AutoData]
+    public async Task GetUser(UserAggregateRoot user)
     {
         // arrange
-        //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects).Create();
-
         await AddUsersToDb(new[] { user });
         var client = _factory.CreateClient();
 
@@ -84,9 +81,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     {
         // arrange
         //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
-        var users = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects).CreateMany(3).ToList();
+        var users = _fixture.Build<UserAggregateRoot>().CreateMany(3).ToList();
 
         await AddUsersToDb(users);
         var client = _factory.CreateClient();
@@ -153,14 +148,9 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 
     [Theory]
     [AutoData]
-    public async Task PutUser(UpdateUserRequest updateUserRequestObj)
+    public async Task PutUser(UpdateUserRequest updateUserRequestObj, UserAggregateRoot user)
     {
         // arrange
-        //TODO: Remove UserAggregateRoot reference from items & projects, then remove these Without().
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects).Create();
-
         await AddUsersToDb(new[] { user });
         var client = _factory.CreateClient();
 
@@ -180,18 +170,15 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         result!.Id.Should().Be(user.Id);
         result.Email.Should().Be(updateUserRequestObj.Email);
         result.Password.Should().Be(updateUserRequestObj.Password);
-        result.TodoItems.Count.Should().Be(0);
-        result.Projects.Count.Should().Be(0);
+        result.TodoItems.Count.Should().Be(user.TodoItems.Count);
+        result.Projects.Count.Should().Be(user.Projects.Count);
     }
 
-    [Fact]
-    public async Task DeleteUser()
+    [Theory]
+    [AutoData]
+    public async Task DeleteUser(UserAggregateRoot user)
     {
         // arrange
-        var user = _fixture.Build<UserAggregateRoot>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects).Create();
-
         await AddUsersToDb(new[] { user });
         var client = _factory.CreateClient();
 
