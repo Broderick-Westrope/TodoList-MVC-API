@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoList.MVC.API;
 
@@ -11,9 +12,11 @@ using TodoList.MVC.API;
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
     [DbContext(typeof(TodoContext))]
-    partial class TodoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230613001337_Rename-to-UserAggregate")]
+    partial class RenametoUserAggregate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,17 +56,17 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("UserAggregateId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("UserId");
+                            b1.HasIndex("UserAggregateId");
 
                             b1.ToTable("Projects");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("UserAggregateId");
                         });
 
                     b.OwnsMany("TodoList.MVC.API.Models.TodoItem", "TodoItems", b1 =>
@@ -86,17 +89,17 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("UserAggregateId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("UserId");
+                            b1.HasIndex("UserAggregateId");
 
                             b1.ToTable("TodoItems");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("UserAggregateId");
                         });
 
                     b.Navigation("Projects");

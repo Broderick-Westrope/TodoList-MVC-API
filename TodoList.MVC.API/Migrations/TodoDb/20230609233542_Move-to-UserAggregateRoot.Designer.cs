@@ -12,7 +12,7 @@ using TodoList.MVC.API;
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
     [DbContext(typeof(TodoContext))]
-    [Migration("20230609233542_Move-to-UserAggregate")]
+    [Migration("20230609233542_Move-to-UserAggregateRoot")]
     partial class MovetoUserAggregateRoot
     {
         /// <inheritdoc />
@@ -81,7 +81,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.ToTable("TodoItems");
                 });
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregateRoot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,19 +102,19 @@ namespace TodoList.MVC.API.Migrations.TodoDb
 
             modelBuilder.Entity("TodoList.MVC.API.Models.Project", b =>
                 {
-                    b.HasOne("TodoList.MVC.API.Models.UserAggregate", null)
+                    b.HasOne("TodoList.MVC.API.Models.UserAggregateRoot", null)
                         .WithMany("Projects")
                         .HasForeignKey("UserAggregateRootId");
                 });
 
             modelBuilder.Entity("TodoList.MVC.API.Models.TodoItem", b =>
                 {
-                    b.HasOne("TodoList.MVC.API.Models.UserAggregate", null)
+                    b.HasOne("TodoList.MVC.API.Models.UserAggregateRoot", null)
                         .WithMany("TodoItems")
                         .HasForeignKey("UserAggregateRootId");
                 });
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregateRoot", b =>
                 {
                     b.Navigation("Projects");
 

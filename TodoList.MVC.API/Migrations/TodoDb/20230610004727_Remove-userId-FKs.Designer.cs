@@ -25,7 +25,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregateRoot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -44,7 +44,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregateRoot", b =>
                 {
                     b.OwnsMany("TodoList.MVC.API.Models.Project", "Projects", b1 =>
                         {
