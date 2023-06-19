@@ -9,16 +9,15 @@ public class UserConfiguration : IEntityTypeConfiguration<UserAggregate>
     {
         builder.HasKey(u => u.Id);
 
-        //TODO: Add more EF config (required, etc).
         builder.OwnsMany(x => x.TodoItems, ownedBuilder =>
         {
-            //? TODO: How to configure the OnDelete(Cascade)?
+            //Owns has cascade on delete by default
             ownedBuilder.HasKey(x => x.Id);
             ownedBuilder.WithOwner().HasForeignKey("UserId");
         });
         builder.OwnsMany(x => x.Projects, ownedBuilder =>
         {
-            //? TODO: How to configure the OnDelete(Cascade)?
+            //Owns has cascade on delete by default
             ownedBuilder.HasKey(x => x.Id);
             ownedBuilder.WithOwner().HasForeignKey("UserId");
         });
