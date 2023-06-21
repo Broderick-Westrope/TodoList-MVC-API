@@ -90,7 +90,8 @@ public class ProjectsController : ControllerBase
 
         return NoContent();
     }
-
+    
+    //TODO: Can this be removed to use a pre-existing repo method instead?
     private async Task<bool> ProjectExists(Guid projectId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
