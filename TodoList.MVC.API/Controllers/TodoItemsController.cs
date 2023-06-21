@@ -1,6 +1,7 @@
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TodoList.MVC.API.Models;
 using TodoList.MVC.API.Repositories;
 using TodoList.MVC.API.Requests.Project;
@@ -15,10 +16,12 @@ namespace TodoList.MVC.API.Controllers;
 public class TodoItemsController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
+    private readonly TodoContext _todoContext;
 
-    public TodoItemsController(IUserRepository userRepository)
+    public TodoItemsController(IUserRepository userRepository, TodoContext todoContext)
     {
         _userRepository = userRepository;
+        _todoContext = todoContext;
     }
 
     // GET: api/TodoItems/:todoItemId
@@ -74,11 +77,13 @@ public class TodoItemsController : ControllerBase
         var todoItemId = Guid.NewGuid();
         var todoItem = new TodoItem(todoItemId, request.Title, request.Description, request.DueDate);
         user.AddTodoItem(todoItem);
+        
         await _userRepository.SaveChangesAsync(cancellationToken);
 
         var response = todoItem.Adapt<CreateTodoItemResponse>();
         return CreatedAtAction(nameof(GetTodoItem), new { todoItemId = todoItemId },response);
     }
+
 
     // DELETE: api/TodoItems/:todoItemId
     [HttpDelete("{todoItemId}")]

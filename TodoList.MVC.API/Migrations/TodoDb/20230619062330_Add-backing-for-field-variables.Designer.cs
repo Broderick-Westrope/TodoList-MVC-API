@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoList.MVC.API;
 
@@ -11,9 +12,11 @@ using TodoList.MVC.API;
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
     [DbContext(typeof(TodoContext))]
-    partial class TodoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230619062330_Add-backing-for-field-variables")]
+    partial class Addbackingforfieldvariables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,6 +28,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
             modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -45,6 +49,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.OwnsMany("TodoList.MVC.API.Models.Project", "Projects", b1 =>
                         {
                             b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Title")
@@ -67,6 +72,7 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.OwnsMany("TodoList.MVC.API.Models.TodoItem", "TodoItems", b1 =>
                         {
                             b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Description")

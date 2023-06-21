@@ -69,10 +69,9 @@ public class ProjectsController : ControllerBase
         var project = new Project(projectId, request.Title);
         user.AddProject(project);
         
-        _userRepository.Update(user);
         await _userRepository.SaveChangesAsync(cancellationToken);
 
-        var response = project.Adapt<CreateProjectRequest>();
+        var response = project.Adapt<CreateProjectResponse>();
         return CreatedAtAction(nameof(GetProject), new { projectId = projectId },response);
     }
 

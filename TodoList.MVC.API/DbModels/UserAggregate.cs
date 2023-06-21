@@ -8,11 +8,11 @@ public class UserAggregate
     public string Email { get; set; }
     public string Password { get; set; }
 
-    private readonly List<TodoItem> _todoItems = new List<TodoItem>();
+    private readonly List<TodoItem> _todoItems = new();
     private readonly List<Project> _projects = new();
 
-    public IReadOnlyCollection<TodoItem>? TodoItems => _todoItems.AsReadOnly();
-    public IReadOnlyCollection<Project>? Projects => _projects.AsReadOnly();
+    public IReadOnlyCollection<TodoItem> TodoItems => _todoItems.AsReadOnly();
+    public IReadOnlyCollection<Project> Projects => _projects.AsReadOnly();
     
     public UserAggregate(Guid id, string email, string password)
     {
@@ -20,7 +20,7 @@ public class UserAggregate
         Email = email;
         Password = password;
     }
-
+    
     public void AddTodoItem(TodoItem todoItem)
     {
         _todoItems.Add(todoItem);
