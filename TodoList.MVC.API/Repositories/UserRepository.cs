@@ -46,13 +46,13 @@ public class UserRepository : IUserRepository
     public async Task<UserAggregate?> GetByProjectId(Guid projectId, CancellationToken cancellationToken)
     {
         return await _context.Users.FirstOrDefaultAsync(
-            x => x.Projects != null && x.Projects.FirstOrDefault(y => y.Id == projectId) != null, cancellationToken);
+            x => x.Projects.FirstOrDefault(y => y.Id == projectId) != null, cancellationToken);
     }
 
     public async Task<UserAggregate?> GetByTodoItemId(Guid todoItemId, CancellationToken cancellationToken)
     {
         return await _context.Users.FirstOrDefaultAsync(
-            x => x.TodoItems != null && x.TodoItems.FirstOrDefault(y => y.Id == todoItemId) != null, cancellationToken);
+            x => x.TodoItems.FirstOrDefault(y => y.Id == todoItemId) != null, cancellationToken);
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
