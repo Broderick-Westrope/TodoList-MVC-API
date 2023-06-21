@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.MVC.API;
-using TodoList.MVC.API.Models;
+using TodoList.MVC.API.DbModels;
 using TodoList.MVC.API.Requests.Project;
 using TodoList.MVC.API.Responses.Project;
 
-namespace E2E.Tests;
+namespace IntegrationTests;
 
 public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {

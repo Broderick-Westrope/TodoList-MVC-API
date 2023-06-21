@@ -1,4 +1,4 @@
-namespace TodoList.MVC.API.Models;
+namespace TodoList.MVC.API.DbModels;
 
 public class Project
 {

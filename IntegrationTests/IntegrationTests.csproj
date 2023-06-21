@@ -6,8 +6,6 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
-
-        <RootNamespace>E2E.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

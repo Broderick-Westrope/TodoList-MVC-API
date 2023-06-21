@@ -1,7 +1,7 @@
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TodoList.MVC.API.Models;
+using TodoList.MVC.API.DbModels;
 using TodoList.MVC.API.Repositories;
 using TodoList.MVC.API.Requests.Project;
 using TodoList.MVC.API.Responses.Project;
@@ -85,7 +85,7 @@ public class ProjectsController : ControllerBase
         var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
         if (user == null) return BadRequest("Could not find user with the given Project ID");
 
-        user.DeleteProjectById(projectId);
+        user.DeleteProject(projectId);
         await _userRepository.SaveChangesAsync(cancellationToken);
 
         return NoContent();

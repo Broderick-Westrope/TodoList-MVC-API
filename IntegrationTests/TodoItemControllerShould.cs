@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.MVC.API;
-using TodoList.MVC.API.Models;
+using TodoList.MVC.API.DbModels;
 using TodoList.MVC.API.Requests.TodoItem;
 using TodoList.MVC.API.Responses.TodoItem;
 
-namespace E2E.Tests;
+namespace IntegrationTests;
 
 //TODO: Add cancellation tokens to tests
 public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable

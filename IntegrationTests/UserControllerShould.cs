@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.MVC.API;
-using TodoList.MVC.API.Models;
+using TodoList.MVC.API.DbModels;
 using TodoList.MVC.API.Requests.User;
 using TodoList.MVC.API.Responses.Project;
 using TodoList.MVC.API.Responses.TodoItem;
 using TodoList.MVC.API.Responses.User;
 
-namespace E2E.Tests;
+namespace IntegrationTests;
 
 public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
@@ -107,7 +107,10 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
     {
         //arrange
         var todoItems = _fixture.Build<TodoItem>().CreateMany(3).ToList();
-        user.AddTodoItems(todoItems);
+        foreach (var todoItem in todoItems)
+        {
+            user.AddTodoItem(todoItem);
+        }
 
         await AddUsersToDb(new[] { user });
         var client = _factory.CreateClient();

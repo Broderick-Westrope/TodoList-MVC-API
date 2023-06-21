@@ -1,4 +1,4 @@
-namespace TodoList.MVC.API.Models;
+namespace TodoList.MVC.API.DbModels;
 
 public class UserAggregate
 {
@@ -24,12 +24,7 @@ public class UserAggregate
     {
         _todoItems.Add(todoItem);
     }
-
-    public void AddTodoItems(IEnumerable<TodoItem> todoItem)
-    {
-        _todoItems.AddRange(todoItem);
-    }
-
+    
     public void DeleteTodoItem(Guid todoItemId)
     {
         var todoItem = _todoItems.FirstOrDefault(x => x.Id == todoItemId);
@@ -46,7 +41,7 @@ public class UserAggregate
         _projects.AddRange(projects);
     }
 
-    public void DeleteProjectById(Guid projectId)
+    public void DeleteProject(Guid projectId)
     {
         var project = _projects.FirstOrDefault(x => x.Id == projectId);
         if (project != null) _projects.Remove(project);

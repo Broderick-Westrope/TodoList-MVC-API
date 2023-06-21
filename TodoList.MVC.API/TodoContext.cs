@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Models.Configuration;
+using TodoList.MVC.API.DbModels;
+using TodoList.MVC.API.DbModels.Configuration;
 
 namespace TodoList.MVC.API;
 

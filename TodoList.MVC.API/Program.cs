@@ -33,6 +33,9 @@ app.MapControllers();
 
 app.Run();
 
-public abstract partial class Program
+namespace TodoList.MVC.API
 {
+    public abstract partial class Program
+    {
+    }
 }

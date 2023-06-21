@@ -1,7 +1,7 @@
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TodoList.MVC.API.Models;
+using TodoList.MVC.API.DbModels;
 using TodoList.MVC.API.Repositories;
 using TodoList.MVC.API.Requests.User;
 using TodoList.MVC.API.Responses.Project;

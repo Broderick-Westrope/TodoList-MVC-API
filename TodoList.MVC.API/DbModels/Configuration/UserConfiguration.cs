@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace TodoList.MVC.API.Models.Configuration;
+namespace TodoList.MVC.API.DbModels.Configuration;
 
 public class UserConfiguration : IEntityTypeConfiguration<UserAggregate>
 {

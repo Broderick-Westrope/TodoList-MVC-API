@@ -1,4 +1,4 @@
-using TodoList.MVC.API.Models;
+using TodoList.MVC.API.DbModels;
 
 namespace TodoList.MVC.API.Repositories;
 
