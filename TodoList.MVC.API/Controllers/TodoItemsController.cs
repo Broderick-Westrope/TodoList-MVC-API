@@ -12,13 +12,11 @@ namespace TodoList.MVC.API.Controllers;
 [ApiController]
 public class TodoItemsController : ControllerBase
 {
-    private readonly TodoContext _todoContext;
     private readonly IUserRepository _userRepository;
 
-    public TodoItemsController(IUserRepository userRepository, TodoContext todoContext)
+    public TodoItemsController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
-        _todoContext = todoContext;
     }
 
     // GET: api/TodoItems/:todoItemId
@@ -57,7 +55,7 @@ public class TodoItemsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await TodoItemExists(todoItemId, cancellationToken))
+            if (await _userRepository.GetByTodoItemId(todoItemId, cancellationToken) == null)
                 return NotFound();
             throw;
         }
@@ -95,11 +93,5 @@ public class TodoItemsController : ControllerBase
         await _userRepository.SaveChangesAsync(cancellationToken);
 
         return NoContent();
-    }
-
-    private async Task<bool> TodoItemExists(Guid todoItemId, CancellationToken cancellationToken)
-    {
-        var user = await _userRepository.GetByTodoItemId(todoItemId, cancellationToken);
-        return user?.TodoItems?.Any(e => e.Id == todoItemId) ?? false;
     }
 }

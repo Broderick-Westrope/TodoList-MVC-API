@@ -52,7 +52,7 @@ public class ProjectsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await ProjectExists(projectId, cancellationToken))
+            if (await _userRepository.GetByProjectId(projectId, cancellationToken) == null)
                 return NotFound();
             throw;
         }
@@ -89,12 +89,5 @@ public class ProjectsController : ControllerBase
         await _userRepository.SaveChangesAsync(cancellationToken);
 
         return NoContent();
-    }
-    
-    //TODO: Can this be removed to use a pre-existing repo method instead?
-    private async Task<bool> ProjectExists(Guid projectId, CancellationToken cancellationToken)
-    {
-        var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
-        return user?.Projects?.Any(e => e.Id == projectId) ?? false;
     }
 }

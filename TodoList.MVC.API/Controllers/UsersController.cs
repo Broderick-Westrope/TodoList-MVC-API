@@ -16,7 +16,7 @@ public class UsersController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
 
-    public UsersController(TodoContext todoContext, IUserRepository userRepository)
+    public UsersController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
@@ -76,7 +76,7 @@ public class UsersController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await UserExists(userId, cancellationToken))
+            if (await _userRepository.Get(userId, cancellationToken) == null)
                 return NotFound();
             throw;
         }
@@ -112,9 +112,4 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-    private async Task<bool> UserExists(Guid userId, CancellationToken cancellationToken)
-    {
-        var user = await _userRepository.Get(userId, cancellationToken);
-        return user != null;
-    }
 }
