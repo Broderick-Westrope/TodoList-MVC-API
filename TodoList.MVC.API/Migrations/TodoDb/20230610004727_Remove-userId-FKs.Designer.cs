@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoList.MVC.API;
 
@@ -11,9 +12,11 @@ using TodoList.MVC.API;
 namespace TodoList.MVC.API.Migrations.TodoDb
 {
     [DbContext(typeof(TodoContext))]
-    partial class TodoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230610004727_Remove-userId-FKs")]
+    partial class RemoveuserIdFKs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,9 +25,10 @@ namespace TodoList.MVC.API.Migrations.TodoDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregateRoot", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -40,33 +44,35 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregate", b =>
+            modelBuilder.Entity("TodoList.MVC.API.Models.UserAggregateRoot", b =>
                 {
                     b.OwnsMany("TodoList.MVC.API.Models.Project", "Projects", b1 =>
                         {
                             b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Title")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("UserAggregateRootId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("UserId");
+                            b1.HasIndex("UserAggregateRootId");
 
                             b1.ToTable("Projects");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("UserAggregateRootId");
                         });
 
                     b.OwnsMany("TodoList.MVC.API.Models.TodoItem", "TodoItems", b1 =>
                         {
                             b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Description")
@@ -83,17 +89,17 @@ namespace TodoList.MVC.API.Migrations.TodoDb
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("UserAggregateRootId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("UserId");
+                            b1.HasIndex("UserAggregateRootId");
 
                             b1.ToTable("TodoItems");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("UserAggregateRootId");
                         });
 
                     b.Navigation("Projects");

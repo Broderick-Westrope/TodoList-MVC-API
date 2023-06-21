@@ -1,3 +1,3 @@
 namespace TodoList.MVC.API.Requests.Project;
 
-public record CreateProjectRequest(Guid UserId, string Title);
+public record CreateProjectRequest(string Title, Guid UserId);

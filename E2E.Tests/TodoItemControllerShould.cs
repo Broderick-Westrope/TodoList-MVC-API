@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.MVC.API;
 using TodoList.MVC.API.Models;
+using TodoList.MVC.API.Requests.Project;
 using TodoList.MVC.API.Requests.TodoItem;
 using TodoList.MVC.API.Responses.TodoItem;
 
@@ -16,7 +17,7 @@ namespace E2E.Tests;
 //TODO: Add cancellation tokens to tests
 public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
-    private const string TodoItemUrl = "api/TodoItem";
+    private const string TodoItemsUrl = "api/TodoItems";
     private readonly WebApplicationFactory<Program> _factory;
     private readonly Fixture _fixture = new();
     private readonly Stack<Guid> _userIds = new();
@@ -26,20 +27,20 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         _factory = factory;
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
         while (_userIds.Count > 0)
         {
             var userId = _userIds.Pop();
-            var user = await context.Users.FirstAsync(x => x!.Id == userId);
-            context.Users.Remove(user);
-            await context.SaveChangesAsync();
+            var user = context.Users.First(x => x!.Id == userId);
+            context.Users.Remove(user); 
+            context.SaveChanges();
         }
     }
 
-    private async Task AddUserToDb(User user)
+    private async Task AddUserToDb(UserAggregate user)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
@@ -49,36 +50,18 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         await context.SaveChangesAsync();
     }
 
-    private async Task AddTodoItemsToDb(IEnumerable<TodoItem> todoItems)
-    {
-        using var scope = _factory.Services.CreateScope();
-        //? Should I be doing "await using ..." since DbContext is IDisposable?
-        var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        foreach (var todoItem in todoItems) await context.TodoItems.AddAsync(todoItem);
-
-        //? Is it bad practice to save the changes outside of the loop?
-        await context.SaveChangesAsync();
-    }
-
     [Theory]
     [AutoData]
     //? Better to generate the createTodo values so we dont make a redundant userId value?
-    //TODO: lazy loading with proxies vs using a DTO for the todoItem values in this test?
-    public async Task GetTodoItem(TodoItem todoItem)
+    public async Task GetTodoItem(TodoItem todoItem, UserAggregate user)
     {
         // arrange
-        //? A way to streamline user creation by making a method that returns the created fixture using the given userId? Worth it?
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, todoItem.UserId).Create();
-
+        user.AddTodoItem(todoItem);
         await AddUserToDb(user);
-        await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();
 
         // act
-        var getResponseMsg = await client.GetAsync($"{TodoItemUrl}/{todoItem.Id}");
+        var getResponseMsg = await client.GetAsync($"{TodoItemsUrl}/{todoItem.Id}");
 
         // assert
         getResponseMsg.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -90,57 +73,21 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         getTodoItemResponseObj.Description.Should().Be(todoItem.Description);
         getTodoItemResponseObj.DueDate.Should().Be(todoItem.DueDate);
         getTodoItemResponseObj.IsCompleted.Should().Be(todoItem.IsCompleted);
-        getTodoItemResponseObj.UserId.Should().Be(todoItem.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task GetAllTodoItems(TodoItem todoItem)
+    public async Task CreateTodoItem(UserAggregate user)
     {
         // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, todoItem.UserId).Create();
-
-        await AddUserToDb(user);
-        await AddTodoItemsToDb(new[] { todoItem });
-        var client = _factory.CreateClient();
-
-        // act
-        var getResponseMsg = await client.GetAsync($"{TodoItemUrl}");
-
-        // assert
-        getResponseMsg.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var getTodoItemResponseObjs =
-            (await getResponseMsg.Content.ReadFromJsonAsync<GetAllTodoItemsResponse>())?.TodoItems;
-        getTodoItemResponseObjs.Should().NotBeNull();
-        getTodoItemResponseObjs!.Count.Should().BePositive();
-        getTodoItemResponseObjs.Should().Contain(x =>
-                x.Id == todoItem.Id &&
-                x.Title == todoItem.Title &&
-                x.Description == todoItem.Description &&
-                x.IsCompleted == todoItem.IsCompleted &&
-                x.DueDate == todoItem.DueDate &&
-                x.UserId == todoItem.UserId);
-    }
-
-    [Theory]
-    [AutoData]
-    public async Task PostTodoItem(CreateTodoItemRequest createTodoItemRequestObj)
-    {
-        // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, createTodoItemRequestObj.UserId).Create();
+        var createTodoItemRequestObj = _fixture.Build<CreateTodoItemRequest>()
+            .With(x => x.UserId, user.Id).Create();
 
         await AddUserToDb(user);
         var client = _factory.CreateClient();
 
         // act
-        var postResponseMsg = await client.PostAsJsonAsync(TodoItemUrl, createTodoItemRequestObj);
+        var postResponseMsg = await client.PostAsJsonAsync(TodoItemsUrl, createTodoItemRequestObj);
 
         // assert
         postResponseMsg.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -148,70 +95,53 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
         createTodoItemResponseObj.Should().NotBeNull();
         createTodoItemResponseObj!.Id.Should().NotBeEmpty();
+        
         createTodoItemResponseObj.Title.Should().Be(createTodoItemResponseObj.Title);
         createTodoItemResponseObj.Description.Should().Be(createTodoItemRequestObj.Description);
         createTodoItemResponseObj.IsCompleted.Should().Be(false);
         createTodoItemResponseObj.DueDate.Should().Be(createTodoItemRequestObj.DueDate);
-        createTodoItemResponseObj.UserId.Should().Be(createTodoItemRequestObj.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task PutTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj)
+    public async Task UpdateTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj, TodoItem todoItem, UserAggregate user)
     {
         // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, updateTodoItemRequestObj.UserId).Create();
-        var todoItem = _fixture.Build<TodoItem>()
-            .With(x => x.UserId, updateTodoItemRequestObj.UserId).Create();
-
+        user.AddTodoItem(todoItem);
         await AddUserToDb(user);
-        await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();
 
         // act
-        var putResponseMsg = await client.PutAsJsonAsync($"{TodoItemUrl}/{todoItem.Id}", updateTodoItemRequestObj);
+        var putResponseMsg = await client.PutAsJsonAsync($"{TodoItemsUrl}/{todoItem.Id}", updateTodoItemRequestObj);
 
         // assert
         putResponseMsg.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.TodoItems.FirstOrDefaultAsync(t => t.Id == todoItem.Id);
-        result.Should().NotBeNull();
-        result!.Id.Should().Be(todoItem.Id);
-        result.Title.Should().Be(updateTodoItemRequestObj.Title);
-        result.Description.Should().Be(updateTodoItemRequestObj.Description);
-        result.IsCompleted.Should().Be(updateTodoItemRequestObj.IsCompleted);
-        result.DueDate.Should().Be(updateTodoItemRequestObj.DueDate);
-        result.UserId.Should().Be(user.Id);
+        var result = (await context.Users.FirstAsync(x => x.TodoItems.FirstOrDefault(y => y.Id == todoItem.Id) != null)).TodoItems.First(x => x.Id == todoItem.Id);
+
+        result.Should().BeEquivalentTo(updateTodoItemRequestObj);
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteTodoItem(TodoItem todoItem)
+    public async Task DeleteTodoItem(TodoItem todoItem, UserAggregate user)
     {
         // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, todoItem.UserId).Create();
-
+        user.AddTodoItem(todoItem);
         await AddUserToDb(user);
-        await AddTodoItemsToDb(new[] { todoItem });
         var client = _factory.CreateClient();
 
         // act
-        var deleteResponseMsg = await client.DeleteAsync($"{TodoItemUrl}/{todoItem.Id}");
+        var deleteResponseMsg = await client.DeleteAsync($"{TodoItemsUrl}/{todoItem.Id}");
 
         // assert
         deleteResponseMsg.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.TodoItems.FirstOrDefaultAsync(x => x.Id == todoItem.Id);
+        var result = await context.Users.FirstOrDefaultAsync(x => x.TodoItems != null && x.TodoItems.FirstOrDefault(y => y.Id == todoItem.Id) != null);;
         result.Should().BeNull();
     }
 }

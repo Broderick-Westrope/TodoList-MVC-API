@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,7 @@ namespace E2E.Tests;
 
 public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
-    private const string ProjectUrl = "api/Project";
+    private const string ProjectsUrl = "api/Projects";
     private readonly WebApplicationFactory<Program> _factory;
     private readonly Fixture _fixture = new();
     private readonly Stack<Guid> _userIds = new();
@@ -25,58 +26,40 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         _factory = factory;
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
         while (_userIds.Count > 0)
         {
             var userId = _userIds.Pop();
-            var user = await context.Users.FirstAsync(x => x!.Id == userId);
+            var user = context.Users.First(x => x!.Id == userId);
             context.Users.Remove(user);
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
     }
 
-    private async Task AddUserToDb(User user)
+    private async Task AddUserToDb(UserAggregate userAggregate)
     {
         using var scope = _factory.Services.CreateScope();
         //? Should I be doing "await using ..." since DbContext is IDisposable?
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        _userIds.Push(user.Id);
-        await context.Users.AddAsync(user);
-        await context.SaveChangesAsync();
-    }
-
-    private async Task AddProjectsToDb(IEnumerable<Project> projects)
-    {
-        using var scope = _factory.Services.CreateScope();
-        //? Should I be doing "await using ..." since DbContext is IDisposable?
-        var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        foreach (var project in projects) await context.Projects.AddAsync(project);
-
-        //? Is it bad practice to save the changes outside of the loop?
+        _userIds.Push(userAggregate.Id);
+        await context.Users.AddAsync(userAggregate);
         await context.SaveChangesAsync();
     }
 
     [Theory]
     [AutoData]
-    //TODO: lazy loading with proxies vs using a DTO for the project values in this test?
-    public async Task GetProject(Project project)
+    public async Task GetProject(UserAggregate user, Project project)
     {
         // arrange
-        //? A way to streamline user creation by making a method that returns the created fixture using the given userId? Worth it?
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, project.UserId).Create();
-
+        user.AddProject(project);
         await AddUserToDb(user);
-        await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();
 
         // act
-        var getResponseMsg = await client.GetAsync($"{ProjectUrl}/{project.Id}");
+        var getResponseMsg = await client.GetAsync($"{ProjectsUrl}/{project.Id}");
 
         // assert
         getResponseMsg.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -85,54 +68,22 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         getProjectResponseObj.Should().NotBeNull();
         getProjectResponseObj!.Id.Should().Be(project.Id);
         getProjectResponseObj.Title.Should().Be(project.Title);
-        getProjectResponseObj.UserId.Should().Be(project.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task GetAllProjects(Project project)
+
+    public async Task CreateProject(UserAggregate user)
     {
         // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, project.UserId).Create();
-
-        await AddUserToDb(user);
-        await AddProjectsToDb(new[] { project });
-        var client = _factory.CreateClient();
-
-        // act
-        var getResponseMsg = await client.GetAsync($"{ProjectUrl}");
-
-        // assert
-        getResponseMsg.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var getProjectResponseObjs =
-            (await getResponseMsg.Content.ReadFromJsonAsync<GetAllProjectsResponse>())?.Projects;
-        getProjectResponseObjs.Should().NotBeNull();
-        getProjectResponseObjs!.Count.Should().BePositive();
-        getProjectResponseObjs.Should().Contain(x =>
-            x.Id == project.Id &&
-            x.Title == project.Title &&
-            x.UserId == project.UserId);
-    }
-
-    [Theory]
-    [AutoData]
-    public async Task PostProject(CreateProjectRequest createProjectRequestObj)
-    {
-        // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, createProjectRequestObj.UserId).Create();
-
+        var createProjectRequestObj = _fixture.Build<CreateProjectRequest>()
+            .With(x => x.UserId, user.Id).Create();
+        
         await AddUserToDb(user);
         var client = _factory.CreateClient();
 
         // act
-        var postResponseMsg = await client.PostAsJsonAsync(ProjectUrl, createProjectRequestObj);
+        var postResponseMsg = await client.PostAsJsonAsync(ProjectsUrl, createProjectRequestObj);
 
         // assert
         postResponseMsg.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -141,64 +92,48 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
         createProjectResponseObj.Should().NotBeNull();
         createProjectResponseObj!.Id.Should().NotBeEmpty();
         createProjectResponseObj.Title.Should().Be(createProjectResponseObj.Title);
-        createProjectResponseObj.UserId.Should().Be(createProjectRequestObj.UserId);
     }
 
     [Theory]
     [AutoData]
-    public async Task PutProject(UpdateProjectRequest updateProjectRequestObj)
+    public async Task UpdateProject(UpdateProjectRequest updateProjectRequestObj, Project project, UserAggregate user)
     {
         // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, updateProjectRequestObj.UserId).Create();
-        var project = _fixture.Build<Project>()
-            .With(x => x.UserId, updateProjectRequestObj.UserId).Create();
-
+        user.AddProject(project);
         await AddUserToDb(user);
-        await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();
 
         // act
-        //? Possible to restrict updateProjectRequestObj.UserId to being the same as createProjectRequestObj.UserId?
-        var putResponseMsg = await client.PutAsJsonAsync($"{ProjectUrl}/{project.Id}",
-            updateProjectRequestObj with { UserId = project.UserId });
+        var putResponseMsg = await client.PutAsJsonAsync($"{ProjectsUrl}/{project.Id}", updateProjectRequestObj);
 
         // assert
         putResponseMsg.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.Projects.FirstOrDefaultAsync(p => p.Id == project.Id);
-        result!.Id.Should().Be(project.Id);
-        result.Title.Should().Be(updateProjectRequestObj.Title);
-        result.UserId.Should().Be(updateProjectRequestObj.UserId);
+        var result = (await context.Users.FirstAsync(x => x.Projects.FirstOrDefault(y => y.Id == project.Id) != null)).Projects.First(x => x.Id == project.Id);
+
+        result.Should().BeEquivalentTo(updateProjectRequestObj);
     }
 
     [Theory]
     [AutoData]
-    public async Task DeleteProject(Project project)
+    public async Task DeleteProject(UserAggregate user, Project project)
     {
         // arrange
-        var user = _fixture.Build<User>()
-            .Without(x => x.TodoItems)
-            .Without(x => x.Projects)
-            .With(x => x.Id, project.UserId).Create();
-
+        user.AddProject(project);
         await AddUserToDb(user);
-        await AddProjectsToDb(new[] { project });
         var client = _factory.CreateClient();
 
         // act
-        var deleteResponseMsg = await client.DeleteAsync($"{ProjectUrl}/{project.Id}");
+        var deleteResponseMsg = await client.DeleteAsync($"{ProjectsUrl}/{project.Id}");
 
         // assert
         deleteResponseMsg.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.Projects.FirstOrDefaultAsync(x => x.Id == project.Id);
+        var result = await context.Users.FirstOrDefaultAsync(x => x.Projects != null && x.Projects.FirstOrDefault(y => y.Id == project.Id) != null);;
         result.Should().BeNull();
     }
 }

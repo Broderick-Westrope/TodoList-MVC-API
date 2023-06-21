@@ -11,11 +11,8 @@ var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONN
 builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(
     opt => opt
-        // .UseLazyLoadingProxies()
-        .UseSqlServer(connectionString));
+        .UseSqlServer(connectionString, options => options.EnableRetryOnFailure()));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
-builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,7 +22,8 @@ var app = builder.Build();
 app.UseSwagger();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) app.UseSwaggerUI();
+// if (app.Environment.IsDevelopment()) 
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -35,6 +33,4 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program
-{
-}
+public abstract partial class Program { }
