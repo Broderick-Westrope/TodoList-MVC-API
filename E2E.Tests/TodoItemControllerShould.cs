@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.MVC.API;
 using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Requests.Project;
 using TodoList.MVC.API.Requests.TodoItem;
 using TodoList.MVC.API.Responses.TodoItem;
 
@@ -35,7 +34,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         {
             var userId = _userIds.Pop();
             var user = context.Users.First(x => x!.Id == userId);
-            context.Users.Remove(user); 
+            context.Users.Remove(user);
             context.SaveChanges();
         }
     }
@@ -95,7 +94,7 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
         var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
         createTodoItemResponseObj.Should().NotBeNull();
         createTodoItemResponseObj!.Id.Should().NotBeEmpty();
-        
+
         createTodoItemResponseObj.Title.Should().Be(createTodoItemResponseObj.Title);
         createTodoItemResponseObj.Description.Should().Be(createTodoItemRequestObj.Description);
         createTodoItemResponseObj.IsCompleted.Should().Be(false);
@@ -104,7 +103,8 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
     [Theory]
     [AutoData]
-    public async Task UpdateTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj, TodoItem todoItem, UserAggregate user)
+    public async Task UpdateTodoItem(UpdateTodoItemRequest updateTodoItemRequestObj, TodoItem todoItem,
+        UserAggregate user)
     {
         // arrange
         user.AddTodoItem(todoItem);
@@ -119,7 +119,9 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = (await context.Users.FirstAsync(x => x.TodoItems.FirstOrDefault(y => y.Id == todoItem.Id) != null)).TodoItems.First(x => x.Id == todoItem.Id);
+        var result =
+            (await context.Users.FirstAsync(x => x.TodoItems.FirstOrDefault(y => y.Id == todoItem.Id) != null))
+            .TodoItems.First(x => x.Id == todoItem.Id);
 
         result.Should().BeEquivalentTo(updateTodoItemRequestObj);
     }
@@ -141,7 +143,9 @@ public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Prog
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.Users.FirstOrDefaultAsync(x => x.TodoItems != null && x.TodoItems.FirstOrDefault(y => y.Id == todoItem.Id) != null);;
+        var result = await context.Users.FirstOrDefaultAsync(x =>
+            x.TodoItems != null && x.TodoItems.FirstOrDefault(y => y.Id == todoItem.Id) != null);
+        ;
         result.Should().BeNull();
     }
 }

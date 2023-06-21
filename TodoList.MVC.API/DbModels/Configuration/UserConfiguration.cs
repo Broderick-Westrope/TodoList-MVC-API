@@ -9,10 +9,10 @@ public class UserConfiguration : IEntityTypeConfiguration<UserAggregate>
     {
         builder.HasKey(u => u.Id);
         builder.Property(x => x.Id).ValueGeneratedNever().IsRequired();
-        
+
         builder.Navigation(s => s.TodoItems).Metadata.SetField("_todoItems");
         builder.Navigation(s => s.TodoItems).UsePropertyAccessMode(PropertyAccessMode.Field);
-        
+
         builder.Navigation(s => s.Projects).Metadata.SetField("_projects");
         builder.Navigation(s => s.Projects).UsePropertyAccessMode(PropertyAccessMode.Field);
 

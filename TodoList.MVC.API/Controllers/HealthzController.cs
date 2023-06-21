@@ -17,9 +17,11 @@ public class HealthzController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var results = new List<string>();
-        results.Add("Request Received.");
-        results.Add("Attempting to connect to database.");
+        var results = new List<string>
+        {
+            "Request Received.",
+            "Attempting to connect to database."
+        };
 
         try
         {

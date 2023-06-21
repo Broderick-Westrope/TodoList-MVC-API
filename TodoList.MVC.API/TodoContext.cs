@@ -11,9 +11,9 @@ public class TodoContext : DbContext
     }
 
     public DbSet<TodoItem> TodoItems { get; set; } = null!;
-    
+
     public DbSet<UserAggregate> Users { get; set; } = null!;
-    
+
     public DbSet<Project> Projects { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

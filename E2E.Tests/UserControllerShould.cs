@@ -19,8 +19,8 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
 {
     private const string UsersUrl = "api/Users";
     private readonly WebApplicationFactory<Program> _factory;
-    private readonly Stack<Guid> _userIds = new();
     private readonly Fixture _fixture = new();
+    private readonly Stack<Guid> _userIds = new();
 
     public UserControllerShould(WebApplicationFactory<Program> factory)
     {
@@ -37,6 +37,7 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
             var user = await context.Users.FirstAsync(x => x.Id == userId);
             context.Users.Remove(user);
         }
+
         //? Is it bad practice to save the changes outside of the loop?
         await context.SaveChangesAsync();
     }
@@ -94,11 +95,12 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         //assert
         getResponseMsg.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var getUserProjectsResponseObjs = (await getResponseMsg.Content.ReadFromJsonAsync<GetUserProjectsResponse>())?.Projects;
+        var getUserProjectsResponseObjs =
+            (await getResponseMsg.Content.ReadFromJsonAsync<GetUserProjectsResponse>())?.Projects;
         getUserProjectsResponseObjs.Should().NotBeNull();
         getUserProjectsResponseObjs!.Should().BeEquivalentTo(projects);
     }
-    
+
     [Theory]
     [AutoData]
     public async Task GetUserTodoItems(UserAggregate user)
@@ -116,7 +118,8 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         //assert
         getResponseMsg.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var getUserProjectsResponseObjs = (await getResponseMsg.Content.ReadFromJsonAsync<GetUserTodoItemsResponse>())?.TodoItems;
+        var getUserProjectsResponseObjs =
+            (await getResponseMsg.Content.ReadFromJsonAsync<GetUserTodoItemsResponse>())?.TodoItems;
         getUserProjectsResponseObjs.Should().NotBeNull();
         getUserProjectsResponseObjs!.Should().BeEquivalentTo(todoItems);
     }

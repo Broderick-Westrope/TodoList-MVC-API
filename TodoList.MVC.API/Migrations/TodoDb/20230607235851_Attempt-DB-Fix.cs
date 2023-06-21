@@ -1,22 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿#nullable disable
 
-#nullable disable
+using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace TodoList.MVC.API.Migrations.TodoDb
+namespace TodoList.MVC.API.Migrations.TodoDb;
+
+/// <inheritdoc />
+public partial class AttemptDBFix : Migration
 {
     /// <inheritdoc />
-    public partial class AttemptDBFix : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+    }
 
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-
-        }
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
     }
 }

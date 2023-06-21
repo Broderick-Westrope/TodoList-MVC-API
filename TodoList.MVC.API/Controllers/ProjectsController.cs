@@ -18,30 +18,32 @@ public class ProjectsController : ControllerBase
     {
         _userRepository = userRepository;
     }
-    
+
     // GET: api/Projects/:projectId
     [HttpGet("{projectId}")]
-    public async Task<ActionResult<GetProjectResponse>> GetProject([FromRoute] Guid projectId, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetProjectResponse>> GetProject([FromRoute] Guid projectId,
+        CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
         if (user == null) return NotFound();
 
-        var project = user.Projects.First(x=>x.Id == projectId);
+        var project = user.Projects.First(x => x.Id == projectId);
         var response = project.Adapt<GetProjectResponse>();
-        
+
         return Ok(response);
     }
 
     // PUT: api/Projects/:projectId
     [HttpPut("{projectId}")]
-    public async Task<IActionResult> PutProject([FromRoute] Guid projectId, [FromBody] UpdateProjectRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PutProject([FromRoute] Guid projectId, [FromBody] UpdateProjectRequest request,
+        CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
         if (user == null) return NotFound();
 
         var project = user.Projects.First(x => x.Id == projectId);
         project.Title = request.Title;
-        
+
         _userRepository.Update(user);
 
         try
@@ -50,7 +52,7 @@ public class ProjectsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!(await ProjectExists(projectId, cancellationToken)))
+            if (!await ProjectExists(projectId, cancellationToken))
                 return NotFound();
             throw;
         }
@@ -60,7 +62,8 @@ public class ProjectsController : ControllerBase
 
     // POST: api/Projects
     [HttpPost]
-    public async Task<ActionResult<CreateProjectResponse>> PostProject([FromBody] CreateProjectRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<CreateProjectResponse>> PostProject([FromBody] CreateProjectRequest request,
+        CancellationToken cancellationToken)
     {
         var user = await _userRepository.Get(request.UserId, cancellationToken);
         if (user == null) return BadRequest("Could not find user with the given User ID.");
@@ -68,11 +71,11 @@ public class ProjectsController : ControllerBase
         var projectId = Guid.NewGuid();
         var project = new Project(projectId, request.Title);
         user.AddProject(project);
-        
+
         await _userRepository.SaveChangesAsync(cancellationToken);
 
         var response = project.Adapt<CreateProjectResponse>();
-        return CreatedAtAction(nameof(GetProject), new { projectId = projectId },response);
+        return CreatedAtAction(nameof(GetProject), new { projectId }, response);
     }
 
     // DELETE: api/Projects/:projectId
@@ -91,6 +94,6 @@ public class ProjectsController : ControllerBase
     private async Task<bool> ProjectExists(Guid projectId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
-        return (user?.Projects?.Any(e => e.Id == projectId)) ?? false;
+        return user?.Projects?.Any(e => e.Id == projectId) ?? false;
     }
 }

@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
-using k8s.KubeConfigModels;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,13 +71,12 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
     [Theory]
     [AutoData]
-
     public async Task CreateProject(UserAggregate user)
     {
         // arrange
         var createProjectRequestObj = _fixture.Build<CreateProjectRequest>()
             .With(x => x.UserId, user.Id).Create();
-        
+
         await AddUserToDb(user);
         var client = _factory.CreateClient();
 
@@ -111,7 +109,9 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = (await context.Users.FirstAsync(x => x.Projects.FirstOrDefault(y => y.Id == project.Id) != null)).Projects.First(x => x.Id == project.Id);
+        var result =
+            (await context.Users.FirstAsync(x => x.Projects.FirstOrDefault(y => y.Id == project.Id) != null)).Projects
+            .First(x => x.Id == project.Id);
 
         result.Should().BeEquivalentTo(updateProjectRequestObj);
     }
@@ -133,7 +133,9 @@ public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Progr
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.Users.FirstOrDefaultAsync(x => x.Projects != null && x.Projects.FirstOrDefault(y => y.Id == project.Id) != null);;
+        var result = await context.Users.FirstOrDefaultAsync(x =>
+            x.Projects != null && x.Projects.FirstOrDefault(y => y.Id == project.Id) != null);
+        ;
         result.Should().BeNull();
     }
 }

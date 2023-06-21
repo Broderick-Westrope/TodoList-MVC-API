@@ -1,9 +1,5 @@
-using System.Linq.Expressions;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Responses.Project;
 
 namespace TodoList.MVC.API.Repositories;
 
@@ -20,7 +16,7 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
-    
+
     public async Task<UserAggregate?> GetWithInclude(Guid userId, CancellationToken cancellationToken)
     {
         return await _context
@@ -29,7 +25,7 @@ public class UserRepository : IUserRepository
             .Include(u => u.Projects)
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
-    
+
     public async Task Add(UserAggregate user, CancellationToken cancellationToken)
     {
         await _context.Users.AddAsync(user, cancellationToken);
@@ -46,15 +42,17 @@ public class UserRepository : IUserRepository
             .Entry(user)
             .State = EntityState.Modified;
     }
-    
+
     public async Task<UserAggregate?> GetByProjectId(Guid projectId, CancellationToken cancellationToken)
     {
-        return await _context.Users.FirstOrDefaultAsync(x => x.Projects != null && x.Projects.FirstOrDefault(y => y.Id == projectId) != null, cancellationToken);
+        return await _context.Users.FirstOrDefaultAsync(
+            x => x.Projects != null && x.Projects.FirstOrDefault(y => y.Id == projectId) != null, cancellationToken);
     }
 
     public async Task<UserAggregate?> GetByTodoItemId(Guid todoItemId, CancellationToken cancellationToken)
     {
-        return await _context.Users.FirstOrDefaultAsync(x => x.TodoItems != null && x.TodoItems.FirstOrDefault(y => y.Id == todoItemId) != null, cancellationToken);
+        return await _context.Users.FirstOrDefaultAsync(
+            x => x.TodoItems != null && x.TodoItems.FirstOrDefault(y => y.Id == todoItemId) != null, cancellationToken);
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)

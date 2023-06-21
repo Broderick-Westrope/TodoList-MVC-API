@@ -23,7 +23,8 @@ public class UsersController : ControllerBase
 
     // GET: api/Users/:userId
     [HttpGet("{userId}")]
-    public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid userId, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid userId,
+        CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetWithInclude(userId, cancellationToken);
         if (user == null) return NotFound();
@@ -33,10 +34,11 @@ public class UsersController : ControllerBase
 
         return Ok(response);
     }
-    
+
     // GET: api/Users/:userId/Projects
     [HttpGet("{userId}/Projects")]
-    public async Task<ActionResult<GetUserProjectsResponse>> GetUserProjects([FromRoute] Guid userId, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetUserProjectsResponse>> GetUserProjects([FromRoute] Guid userId,
+        CancellationToken cancellationToken)
     {
         var user = await _userRepository.Get(userId, cancellationToken);
         if (user == null) return NotFound();
@@ -46,10 +48,11 @@ public class UsersController : ControllerBase
 
         return Ok(new GetUserProjectsResponse(projects.ToList()));
     }
-    
+
     // GET: api/Users/:userId/TodoItems
     [HttpGet("{userId}/TodoItems")]
-    public async Task<ActionResult<GetUserTodoItemsResponse>> GetUserTodoItems([FromRoute] Guid userId, CancellationToken cancellationToken)
+    public async Task<ActionResult<GetUserTodoItemsResponse>> GetUserTodoItems([FromRoute] Guid userId,
+        CancellationToken cancellationToken)
     {
         var user = await _userRepository.Get(userId, cancellationToken);
         if (user == null) return NotFound();
@@ -62,7 +65,8 @@ public class UsersController : ControllerBase
 
     // PUT: api/Users/:userId
     [HttpPut("{userId}")]
-    public async Task<IActionResult> PutUser([FromRoute] Guid userId, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PutUser([FromRoute] Guid userId, [FromBody] UpdateUserRequest request,
+        CancellationToken cancellationToken)
     {
         _userRepository.Update(new UserAggregate(userId, request.Email, request.Password));
 
@@ -72,7 +76,7 @@ public class UsersController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!(await UserExists(userId, cancellationToken)))
+            if (!await UserExists(userId, cancellationToken))
                 return NotFound();
             throw;
         }
@@ -82,16 +86,17 @@ public class UsersController : ControllerBase
 
     // POST: api/Users
     [HttpPost]
-    public async Task<ActionResult<CreateUserResponse>> PostUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<CreateUserResponse>> PostUser([FromBody] CreateUserRequest request,
+        CancellationToken cancellationToken)
     {
         var userId = Guid.NewGuid();
         var userAggregate = new UserAggregate(userId, request.Email, request.Password);
 
         await _userRepository.Add(userAggregate, cancellationToken);
         await _userRepository.SaveChangesAsync(cancellationToken);
-        
+
         var response = userAggregate.Adapt<CreateUserResponse>();
-        return CreatedAtAction(nameof(GetUser), new { userId = userId },response);
+        return CreatedAtAction(nameof(GetUser), new { userId }, response);
     }
 
     // DELETE: api/Users/:userId

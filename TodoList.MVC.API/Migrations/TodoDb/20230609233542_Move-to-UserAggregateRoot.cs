@@ -1,121 +1,119 @@
-﻿using System;
+﻿#nullable disable
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
+namespace TodoList.MVC.API.Migrations.TodoDb;
 
-namespace TodoList.MVC.API.Migrations.TodoDb
+/// <inheritdoc />
+public partial class MovetoUserAggregateRoot : Migration
 {
     /// <inheritdoc />
-    public partial class MovetoUserAggregateRoot : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Users_UserId",
-                table: "Projects");
+        migrationBuilder.DropForeignKey(
+            "FK_Projects_Users_UserId",
+            "Projects");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_TodoItems_Users_UserId",
-                table: "TodoItems");
+        migrationBuilder.DropForeignKey(
+            "FK_TodoItems_Users_UserId",
+            "TodoItems");
 
-            migrationBuilder.DropIndex(
-                name: "IX_TodoItems_UserId",
-                table: "TodoItems");
+        migrationBuilder.DropIndex(
+            "IX_TodoItems_UserId",
+            "TodoItems");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Projects_UserId",
-                table: "Projects");
+        migrationBuilder.DropIndex(
+            "IX_Projects_UserId",
+            "Projects");
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "UserAggregateRootId",
-                table: "TodoItems",
-                type: "uniqueidentifier",
-                nullable: true);
+        migrationBuilder.AddColumn<Guid>(
+            "UserAggregateRootId",
+            "TodoItems",
+            "uniqueidentifier",
+            nullable: true);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "UserAggregateRootId",
-                table: "Projects",
-                type: "uniqueidentifier",
-                nullable: true);
+        migrationBuilder.AddColumn<Guid>(
+            "UserAggregateRootId",
+            "Projects",
+            "uniqueidentifier",
+            nullable: true);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_TodoItems_UserAggregateRootId",
-                table: "TodoItems",
-                column: "UserAggregateRootId");
+        migrationBuilder.CreateIndex(
+            "IX_TodoItems_UserAggregateRootId",
+            "TodoItems",
+            "UserAggregateRootId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Projects_UserAggregateRootId",
-                table: "Projects",
-                column: "UserAggregateRootId");
+        migrationBuilder.CreateIndex(
+            "IX_Projects_UserAggregateRootId",
+            "Projects",
+            "UserAggregateRootId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Projects_Users_UserAggregateRootId",
-                table: "Projects",
-                column: "UserAggregateRootId",
-                principalTable: "Users",
-                principalColumn: "Id");
+        migrationBuilder.AddForeignKey(
+            "FK_Projects_Users_UserAggregateRootId",
+            "Projects",
+            "UserAggregateRootId",
+            "Users",
+            principalColumn: "Id");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_TodoItems_Users_UserAggregateRootId",
-                table: "TodoItems",
-                column: "UserAggregateRootId",
-                principalTable: "Users",
-                principalColumn: "Id");
-        }
+        migrationBuilder.AddForeignKey(
+            "FK_TodoItems_Users_UserAggregateRootId",
+            "TodoItems",
+            "UserAggregateRootId",
+            "Users",
+            principalColumn: "Id");
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Projects_Users_UserAggregateRootId",
-                table: "Projects");
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropForeignKey(
+            "FK_Projects_Users_UserAggregateRootId",
+            "Projects");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_TodoItems_Users_UserAggregateRootId",
-                table: "TodoItems");
+        migrationBuilder.DropForeignKey(
+            "FK_TodoItems_Users_UserAggregateRootId",
+            "TodoItems");
 
-            migrationBuilder.DropIndex(
-                name: "IX_TodoItems_UserAggregateRootId",
-                table: "TodoItems");
+        migrationBuilder.DropIndex(
+            "IX_TodoItems_UserAggregateRootId",
+            "TodoItems");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Projects_UserAggregateRootId",
-                table: "Projects");
+        migrationBuilder.DropIndex(
+            "IX_Projects_UserAggregateRootId",
+            "Projects");
 
-            migrationBuilder.DropColumn(
-                name: "UserAggregateRootId",
-                table: "TodoItems");
+        migrationBuilder.DropColumn(
+            "UserAggregateRootId",
+            "TodoItems");
 
-            migrationBuilder.DropColumn(
-                name: "UserAggregateRootId",
-                table: "Projects");
+        migrationBuilder.DropColumn(
+            "UserAggregateRootId",
+            "Projects");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_TodoItems_UserId",
-                table: "TodoItems",
-                column: "UserId");
+        migrationBuilder.CreateIndex(
+            "IX_TodoItems_UserId",
+            "TodoItems",
+            "UserId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Projects_UserId",
-                table: "Projects",
-                column: "UserId");
+        migrationBuilder.CreateIndex(
+            "IX_Projects_UserId",
+            "Projects",
+            "UserId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Projects_Users_UserId",
-                table: "Projects",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+        migrationBuilder.AddForeignKey(
+            "FK_Projects_Users_UserId",
+            "Projects",
+            "UserId",
+            "Users",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Cascade);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_TodoItems_Users_UserId",
-                table: "TodoItems",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-        }
+        migrationBuilder.AddForeignKey(
+            "FK_TodoItems_Users_UserId",
+            "TodoItems",
+            "UserId",
+            "Users",
+            principalColumn: "Id",
+            onDelete: ReferentialAction.Cascade);
     }
 }

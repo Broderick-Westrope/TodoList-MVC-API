@@ -1,7 +1,4 @@
-using System.Linq.Expressions;
-using k8s.KubeConfigModels;
 using TodoList.MVC.API.Models;
-using TodoList.MVC.API.Responses.Project;
 
 namespace TodoList.MVC.API.Repositories;
 
