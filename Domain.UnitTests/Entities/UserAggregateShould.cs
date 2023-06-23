@@ -1,12 +1,11 @@
-using AutoFixture;
 using AutoFixture.Xunit2;
+using FluentAssertions;
+using TodoList.Domain.Entities;
 
-namespace UnitTests;
+namespace Domain.UnitTests.Entities;
 
 public class UserAggregateShould
 {
-    private readonly Fixture _fixture = new();
-
     [Theory]
     [AutoData]
     public void AddTodoItem(UserAggregate user, TodoItem todoItem)

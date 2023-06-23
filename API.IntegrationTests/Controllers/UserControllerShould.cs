@@ -4,9 +4,16 @@ using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TodoList.Application.Requests.User;
+using TodoList.Application.Responses.Project;
+using TodoList.Application.Responses.TodoItem;
+using TodoList.Application.Responses.User;
+using TodoList.Domain.Entities;
+using TodoList.Persistence;
 
-namespace IntegrationTests;
+namespace API.IntegrationTests.Controllers;
 
 public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {

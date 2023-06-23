@@ -4,9 +4,14 @@ using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TodoList.Application.Requests.TodoItem;
+using TodoList.Application.Responses.TodoItem;
+using TodoList.Domain.Entities;
+using TodoList.Persistence;
 
-namespace IntegrationTests;
+namespace API.IntegrationTests.Controllers;
 
 //TODO: Add cancellation tokens to tests
 public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable

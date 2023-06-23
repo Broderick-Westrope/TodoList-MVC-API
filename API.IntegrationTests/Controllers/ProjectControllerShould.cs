@@ -4,11 +4,17 @@ using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TodoList.Application.Requests.Project;
+using TodoList.Application.Responses.Project;
+using TodoList.Domain.Entities;
+using TodoList.Persistence;
 
-namespace IntegrationTests;
+namespace API.IntegrationTests.Controllers;
 
-public class ProjectControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public class ProjectControllerShould :
+    IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string ProjectsUrl = "api/Projects";
     private readonly WebApplicationFactory<Program> _factory;
