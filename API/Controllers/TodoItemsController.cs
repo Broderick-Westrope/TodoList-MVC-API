@@ -1,8 +1,12 @@
-using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.Application.Requests.TodoItem;
 using TodoList.Application.Responses.TodoItem;
+using TodoList.Application.TodoItems.Commands.AddTodoItem;
+using TodoList.Application.TodoItems.Commands.DeleteTodoItem;
+using TodoList.Application.TodoItems.Commands.UpdateTodoItem;
+using TodoList.Application.TodoItems.Queries.GetTodoItem;
 using TodoList.Domain;
 using TodoList.Domain.Entities;
 
@@ -12,11 +16,11 @@ namespace API.Controllers;
 [ApiController]
 public class TodoItemsController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
+    private readonly ISender _sender;
 
-    public TodoItemsController(IUserRepository userRepository)
+    public TodoItemsController(ISender sender)
     {
-        _userRepository = userRepository;
+        _sender = sender;
     }
 
     // GET: api/TodoItems/:todoItemId
@@ -24,13 +28,9 @@ public class TodoItemsController : ControllerBase
     public async Task<ActionResult<GetTodoItemResponse>> GetTodoItem(Guid todoItemId,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByTodoItemId(todoItemId, cancellationToken);
-        if (user == null) return NotFound();
+        var response = await _sender.Send(new GetTodoItemQuery(todoItemId), cancellationToken);
 
-        var todoItem = user.TodoItems.First(x => x.Id == todoItemId);
-        var response = todoItem.Adapt<GetTodoItemResponse>();
-
-        return Ok(response);
+        return response == null ? NotFound() : Ok(response);
     }
 
     // PUT: api/TodoItems/:todoItemId
@@ -38,29 +38,9 @@ public class TodoItemsController : ControllerBase
     public async Task<IActionResult> PutTodoItem([FromRoute] Guid todoItemId, [FromBody] UpdateTodoItemRequest request,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByTodoItemId(todoItemId, cancellationToken);
-        if (user == null) return NotFound();
+        var result = await _sender.Send(new UpdateTodoItemCommand(todoItemId, request), cancellationToken);
 
-        var todoItem = user.TodoItems.First(x => x.Id == todoItemId);
-        todoItem.Title = request.Title;
-        todoItem.Description = request.Description;
-        todoItem.DueDate = request.DueDate;
-        todoItem.IsCompleted = request.IsCompleted;
-
-        _userRepository.Update(user);
-
-        try
-        {
-            await _userRepository.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (await _userRepository.GetByTodoItemId(todoItemId, cancellationToken) == null)
-                return NotFound();
-            throw;
-        }
-
-        return NoContent();
+        return result.WasTodoItemFound ? NoContent() : NotFound();
     }
 
     // POST: api/TodoItems
@@ -68,17 +48,11 @@ public class TodoItemsController : ControllerBase
     public async Task<ActionResult<CreateTodoItemResponse>> PostTodoItem([FromBody] CreateTodoItemRequest request,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Get(request.UserId, cancellationToken);
-        if (user == null) return BadRequest("Could not find user with the given User ID.");
+        var result = await _sender.Send(new AddTodoItemCommand(request), cancellationToken);
+        if (result == null) return BadRequest("Could not find user with the given User ID.");
 
-        var todoItemId = Guid.NewGuid();
-        var todoItem = new TodoItem(todoItemId, request.Title, request.Description, request.DueDate);
-        user.AddTodoItem(todoItem);
-
-        await _userRepository.SaveChangesAsync(cancellationToken);
-
-        var response = todoItem.Adapt<CreateTodoItemResponse>();
-        return CreatedAtAction(nameof(GetTodoItem), new { todoItemId }, response);
+        var response = new GetTodoItemResponse(result.TodoItemId, request.Title, request.Description, request.DueDate, false);
+        return CreatedAtAction(nameof(GetTodoItem), new { todoItemId = result.TodoItemId }, response);
     }
 
 
@@ -86,11 +60,8 @@ public class TodoItemsController : ControllerBase
     [HttpDelete("{todoItemId}")]
     public async Task<IActionResult> DeleteTodoItem([FromRoute] Guid todoItemId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByTodoItemId(todoItemId, cancellationToken);
-        if (user == null) return BadRequest("Could not find user with the given Project ID");
-
-        user.DeleteTodoItem(todoItemId);
-        await _userRepository.SaveChangesAsync(cancellationToken);
+        var result = await _sender.Send(new DeleteTodoItemCommand(todoItemId), cancellationToken);
+        if (!result.WasUserFound) return BadRequest("Could not find user with the given TodoItem ID");
 
         return NoContent();
     }
