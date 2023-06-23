@@ -1,10 +1,11 @@
-using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using TodoList.Application.Projects.Commands.AddProject;
+using TodoList.Application.Projects.Commands.DeleteProject;
+using TodoList.Application.Projects.Commands.UpdateProject;
+using TodoList.Application.Projects.Queries.GetProject;
 using TodoList.Application.Requests.Project;
-using TodoList.Application.Responses.Project;
-using TodoList.Domain;
-using TodoList.Domain.Entities;
+using TodoList.Application.Responses;
 
 namespace API.Controllers;
 
@@ -12,11 +13,11 @@ namespace API.Controllers;
 [ApiController]
 public class ProjectsController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
+    private readonly ISender _sender;
 
-    public ProjectsController(IUserRepository userRepository)
+    public ProjectsController(ISender sender)
     {
-        _userRepository = userRepository;
+        _sender = sender;
     }
 
     // GET: api/Projects/:projectId
@@ -24,13 +25,9 @@ public class ProjectsController : ControllerBase
     public async Task<ActionResult<GetProjectResponse>> GetProject([FromRoute] Guid projectId,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
-        if (user == null) return NotFound();
+        var response = await _sender.Send(new GetProjectQuery(projectId), cancellationToken);
 
-        var project = user.Projects.First(x => x.Id == projectId);
-        var response = project.Adapt<GetProjectResponse>();
-
-        return Ok(response);
+        return response == null ? NotFound() : Ok(response);
     }
 
     // PUT: api/Projects/:projectId
@@ -38,55 +35,29 @@ public class ProjectsController : ControllerBase
     public async Task<IActionResult> PutProject([FromRoute] Guid projectId, [FromBody] UpdateProjectRequest request,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
-        if (user == null) return NotFound();
+        var result = await _sender.Send(new UpdateProjectCommand(projectId, request), cancellationToken);
 
-        var project = user.Projects.First(x => x.Id == projectId);
-        project.Title = request.Title;
-
-        _userRepository.Update(user);
-
-        try
-        {
-            await _userRepository.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (await _userRepository.GetByProjectId(projectId, cancellationToken) == null)
-                return NotFound();
-            throw;
-        }
-
-        return NoContent();
+        return result.WasProjectFound ? NoContent() : NotFound();
     }
 
     // POST: api/Projects
     [HttpPost]
-    public async Task<ActionResult<CreateProjectResponse>> PostProject([FromBody] CreateProjectRequest request,
+    public async Task<ActionResult<GetProjectResponse>> PostProject([FromBody] CreateProjectRequest request,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Get(request.UserId, cancellationToken);
-        if (user == null) return BadRequest("Could not find user with the given User ID.");
+        var result = await _sender.Send(new AddProjectCommand(request), cancellationToken);
+        if (result == null) return BadRequest("Could not find user with the given User ID.");
 
-        var projectId = Guid.NewGuid();
-        var project = new Project(projectId, request.Title);
-        user.AddProject(project);
-
-        await _userRepository.SaveChangesAsync(cancellationToken);
-
-        var response = project.Adapt<CreateProjectResponse>();
-        return CreatedAtAction(nameof(GetProject), new { projectId }, response);
+        var response = new GetProjectResponse(result.ProjectId, request.Title);
+        return CreatedAtAction(nameof(GetProject), new { projectId = result.ProjectId }, response);
     }
 
     // DELETE: api/Projects/:projectId
     [HttpDelete("{projectId}")]
     public async Task<IActionResult> DeleteProject([FromRoute] Guid projectId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByProjectId(projectId, cancellationToken);
-        if (user == null) return BadRequest("Could not find user with the given Project ID");
-
-        user.DeleteProject(projectId);
-        await _userRepository.SaveChangesAsync(cancellationToken);
+        var result = await _sender.Send(new DeleteProjectCommand(projectId), cancellationToken);
+        if (!result.WasUserFound) return BadRequest("Could not find user with the given Project ID");
 
         return NoContent();
     }

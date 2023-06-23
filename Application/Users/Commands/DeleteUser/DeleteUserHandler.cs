@@ -7,11 +7,14 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand, DeleteUserRe
 {
     private readonly IUserRepository _userRepository;
 
-    public DeleteUserHandler(IUserRepository userRepository) => _userRepository = userRepository;
-
-    public async Task<DeleteUserResult> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+    public DeleteUserHandler(IUserRepository userRepository)
     {
-        var user = await _userRepository.Get(request.UserId, cancellationToken);
+        _userRepository = userRepository;
+    }
+
+    public async Task<DeleteUserResult> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.Get(command.UserId, cancellationToken);
         if (user == null) return new DeleteUserResult(false);
 
         _userRepository.Remove(user);

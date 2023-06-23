@@ -8,7 +8,6 @@ using TodoList.Application.Users.Commands.UpdateUser;
 using TodoList.Application.Users.Queries.GetUser;
 using TodoList.Application.Users.Queries.GetUserProjects;
 using TodoList.Application.Users.Queries.GetUserTodoItems;
-using TodoList.Domain;
 
 namespace API.Controllers;
 
@@ -17,11 +16,9 @@ namespace API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly ISender _sender;
-    private readonly IUserRepository _userRepository;
 
-    public UsersController(IUserRepository userRepository, ISender sender)
+    public UsersController(ISender sender)
     {
-        _userRepository = userRepository;
         _sender = sender;
     }
 

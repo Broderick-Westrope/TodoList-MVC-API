@@ -1,3 +1,3 @@
-namespace TodoList.Application.Responses.Project;
+namespace TodoList.Application.Responses;
 
 public record GetProjectResponse(Guid Id, string Title);

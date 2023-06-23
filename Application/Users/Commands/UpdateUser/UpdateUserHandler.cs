@@ -9,7 +9,10 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserCommand, UpdateUserRe
 {
     private readonly IUserRepository _userRepository;
 
-    public UpdateUserHandler(IUserRepository userRepository) => _userRepository = userRepository;
+    public UpdateUserHandler(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
 
     public async Task<UpdateUserResult> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
     {

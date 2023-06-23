@@ -9,11 +9,14 @@ public class GetUserQueryHandler : IRequestHandler<GetUserQuery, GetUserResponse
 {
     private readonly IUserRepository _userRepository;
 
-    public GetUserQueryHandler(IUserRepository userRepository) => _userRepository = userRepository;
-
-    public async Task<GetUserResponse?> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public GetUserQueryHandler(IUserRepository userRepository)
     {
-        var result = await _userRepository.Get(request.UserId, cancellationToken);
+        _userRepository = userRepository;
+    }
+
+    public async Task<GetUserResponse?> Handle(GetUserQuery query, CancellationToken cancellationToken)
+    {
+        var result = await _userRepository.Get(query.UserId, cancellationToken);
         return result?.Adapt<GetUserResponse>();
     }
 }

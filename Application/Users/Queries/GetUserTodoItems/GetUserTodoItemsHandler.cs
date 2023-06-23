@@ -10,12 +10,15 @@ public class GetUserTodoItemsQueryHandler : IRequestHandler<GetUserTodoItemsQuer
 {
     private readonly IUserRepository _userRepository;
 
-    public GetUserTodoItemsQueryHandler(IUserRepository userRepository) => _userRepository = userRepository;
+    public GetUserTodoItemsQueryHandler(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
 
-    public async Task<GetUserTodoItemsResponse?> Handle(GetUserTodoItemsQuery request,
+    public async Task<GetUserTodoItemsResponse?> Handle(GetUserTodoItemsQuery query,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Get(request.UserId, cancellationToken);
+        var user = await _userRepository.Get(query.UserId, cancellationToken);
         var todoItems = user?.TodoItems.Adapt<List<GetTodoItemResponse>>();
         return todoItems == null ? null : new GetUserTodoItemsResponse(todoItems);
     }

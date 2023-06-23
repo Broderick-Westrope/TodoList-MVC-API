@@ -8,7 +8,10 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, AddUserResu
 {
     private readonly IUserRepository _userRepository;
 
-    public AddUserCommandHandler(IUserRepository userRepository) => _userRepository = userRepository;
+    public AddUserCommandHandler(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
 
     public async Task<AddUserResult> Handle(AddUserCommand command, CancellationToken cancellationToken)
     {

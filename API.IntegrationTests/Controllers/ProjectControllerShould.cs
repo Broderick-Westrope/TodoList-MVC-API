@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.Application.Requests.Project;
-using TodoList.Application.Responses.Project;
+using TodoList.Application.Responses;
 using TodoList.Domain.Entities;
 using TodoList.Persistence;
 
@@ -87,10 +87,10 @@ public class ProjectControllerShould :
         // assert
         postResponseMsg.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var createProjectResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateProjectResponse>();
-        createProjectResponseObj.Should().NotBeNull();
-        createProjectResponseObj!.Id.Should().NotBeEmpty();
-        createProjectResponseObj.Title.Should().Be(createProjectResponseObj.Title);
+        var getProjectResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<GetProjectResponse>();
+        getProjectResponseObj.Should().NotBeNull();
+        getProjectResponseObj!.Id.Should().NotBeEmpty();
+        getProjectResponseObj.Title.Should().Be(getProjectResponseObj.Title);
     }
 
     [Theory]
