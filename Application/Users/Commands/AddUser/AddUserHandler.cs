@@ -1,4 +1,3 @@
-using MapsterMapper;
 using MediatR;
 using TodoList.Domain;
 using TodoList.Domain.Entities;
@@ -7,13 +6,11 @@ namespace TodoList.Application.Users.Commands.AddUser;
 
 public class AddUserCommandHandler : IRequestHandler<AddUserCommand, AddUserResult>
 {
-    private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
 
-    public AddUserCommandHandler(IUserRepository userRepository, IMapper mapper)
+    public AddUserCommandHandler(IUserRepository userRepository)
     {
         _userRepository = userRepository;
-        _mapper = mapper;
     }
 
     public async Task<AddUserResult> Handle(AddUserCommand command, CancellationToken cancellationToken)

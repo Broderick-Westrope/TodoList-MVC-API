@@ -17,7 +17,10 @@ public class UsersController : ControllerBase
 {
     private readonly ISender _sender;
 
-    public UsersController(ISender sender) => _sender = sender;
+    public UsersController(ISender sender)
+    {
+        _sender = sender;
+    }
 
     // GET: api/Users/:userId
     [HttpGet("{userId}")]
@@ -81,4 +84,3 @@ public class UsersController : ControllerBase
 
         return result.IsUserFound ? NoContent() : NotFound();
     }
-}
