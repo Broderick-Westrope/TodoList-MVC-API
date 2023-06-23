@@ -1,15 +1,14 @@
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TodoList.Application.Requests.User;
-using TodoList.Application.Responses.TodoItem;
 using TodoList.Application.Responses.User;
+using TodoList.Application.Users.Commands.AddUser;
+using TodoList.Application.Users.Commands.DeleteUser;
+using TodoList.Application.Users.Commands.UpdateUser;
 using TodoList.Application.Users.Queries.GetUser;
 using TodoList.Application.Users.Queries.GetUserProjects;
 using TodoList.Application.Users.Queries.GetUserTodoItems;
 using TodoList.Domain;
-using TodoList.Domain.Entities;
 
 namespace API.Controllers;
 
@@ -64,47 +63,28 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> PutUser([FromRoute] Guid userId, [FromBody] UpdateUserRequest request,
         CancellationToken cancellationToken)
     {
-        _userRepository.Update(new UserAggregate(userId, request.Email, request.Password));
+        var result = await _sender.Send(new UpdateUserCommand(userId, request), cancellationToken);
 
-        try
-        {
-            await _userRepository.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (await _userRepository.Get(userId, cancellationToken) == null)
-                return NotFound();
-            throw;
-        }
-
-        return NoContent();
+        return result.IsUserFound ? NoContent() : NotFound();
     }
 
     // POST: api/Users
     [HttpPost]
-    public async Task<ActionResult<CreateUserResponse>> PostUser([FromBody] CreateUserRequest request,
+    public async Task<ActionResult<GetUserResponse>> PostUser([FromBody] CreateUserRequest request,
         CancellationToken cancellationToken)
     {
-        var userId = Guid.NewGuid();
-        var userAggregate = new UserAggregate(userId, request.Email, request.Password);
+        var result = await _sender.Send(new AddUserCommand(request), cancellationToken);
 
-        await _userRepository.Add(userAggregate, cancellationToken);
-        await _userRepository.SaveChangesAsync(cancellationToken);
-
-        var response = userAggregate.Adapt<CreateUserResponse>();
-        return CreatedAtAction(nameof(GetUser), new { userId }, response);
+        var response = new GetUserResponse(result.UserId, request.Email, request.Password);
+        return CreatedAtAction(nameof(GetUser), new { userId = result.UserId }, response);
     }
 
     // DELETE: api/Users/:userId
     [HttpDelete("{userId}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Get(userId, cancellationToken);
-        if (user == null) return NotFound();
+        var result = await _sender.Send(new DeleteUserCommand(userId), cancellationToken);
 
-        _userRepository.Remove(user);
-        await _userRepository.SaveChangesAsync(cancellationToken);
-
-        return NoContent();
+        return result.IsUserFound ? NoContent() : NotFound();
     }
 }

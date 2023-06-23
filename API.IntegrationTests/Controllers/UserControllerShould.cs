@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TodoList.Application.Requests.User;
-using TodoList.Application.Responses.Project;
-using TodoList.Application.Responses.TodoItem;
 using TodoList.Application.Responses.User;
 using TodoList.Domain.Entities;
 using TodoList.Persistence;
@@ -137,22 +135,22 @@ public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>
         // assert
         postResponseMsg.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var createUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateUserResponse>();
-        createUserResponseObj.Should().NotBeNull();
-        createUserResponseObj!.Id.Should().NotBeEmpty();
+        var getUserResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<GetUserResponse>();
+        getUserResponseObj.Should().NotBeNull();
+        getUserResponseObj!.Id.Should().NotBeEmpty();
 
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TodoContext>();
-        var result = await context.Users.FirstOrDefaultAsync(u => u.Id == createUserResponseObj.Id);
+        var result = await context.Users.FirstOrDefaultAsync(u => u.Id == getUserResponseObj.Id);
 
         result.Should().NotBeNull();
-        createUserResponseObj.Id.Should().Be(result!.Id);
-        _userIds.Push(createUserResponseObj.Id);
+        getUserResponseObj.Id.Should().Be(result!.Id);
+        _userIds.Push(getUserResponseObj.Id);
 
-        createUserResponseObj.Email.Should().Be(createUserRequestObj.Email);
-        createUserResponseObj.Email.Should().Be(result.Email);
-        createUserResponseObj.Password.Should().Be(createUserRequestObj.Password);
-        createUserResponseObj.Password.Should().Be(result.Password);
+        getUserResponseObj.Email.Should().Be(createUserRequestObj.Email);
+        getUserResponseObj.Email.Should().Be(result.Email);
+        getUserResponseObj.Password.Should().Be(createUserRequestObj.Password);
+        getUserResponseObj.Password.Should().Be(result.Password);
         result.TodoItems!.Count.Should().Be(0);
         result.Projects!.Count.Should().Be(0);
     }

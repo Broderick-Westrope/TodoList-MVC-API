@@ -18,15 +18,6 @@ public class UserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
     }
 
-    public async Task<UserAggregate?> GetWithInclude(Guid userId, CancellationToken cancellationToken)
-    {
-        return await _context
-            .Users
-            .Include(u => u.TodoItems)
-            .Include(u => u.Projects)
-            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-    }
-
     public async Task Add(UserAggregate user, CancellationToken cancellationToken)
     {
         await _context.Users.AddAsync(user, cancellationToken);
@@ -40,8 +31,7 @@ public class UserRepository : IUserRepository
     public void Update(UserAggregate user)
     {
         _context.Users
-            .Entry(user)
-            .State = EntityState.Modified;
+            .Update(user);
     }
 
     public async Task<UserAggregate?> GetByProjectId(Guid projectId, CancellationToken cancellationToken)
