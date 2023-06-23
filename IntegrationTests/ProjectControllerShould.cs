@@ -4,12 +4,7 @@ using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TodoList.MVC.API;
-using TodoList.MVC.API.DbModels;
-using TodoList.MVC.API.Requests.Project;
-using TodoList.MVC.API.Responses.Project;
 
 namespace IntegrationTests;
 

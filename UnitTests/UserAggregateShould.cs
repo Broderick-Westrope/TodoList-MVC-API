@@ -1,7 +1,5 @@
 using AutoFixture;
 using AutoFixture.Xunit2;
-using FluentAssertions;
-using TodoList.MVC.API.DbModels;
 
 namespace UnitTests;
 
@@ -15,7 +13,7 @@ public class UserAggregateShould
     {
         //act
         user.AddTodoItem(todoItem);
-        
+
         //assert
         user.TodoItems.Should().Contain(todoItem);
     }
@@ -27,21 +25,21 @@ public class UserAggregateShould
         //arrange
         user.AddTodoItem(todoItem);
         Assert.Contains(todoItem, user.TodoItems);
-        
+
         // act
         user.DeleteTodoItem(todoItem.Id);
-        
+
         //assert
         user.TodoItems.Should().NotContain(todoItem);
     }
-    
+
     [Theory]
     [AutoData]
     public void AddProject(UserAggregate user, Project project)
     {
         //act
         user.AddProject(project);
-        
+
         //assert
         user.Projects.Should().Contain(project);
     }
@@ -53,13 +51,11 @@ public class UserAggregateShould
         //arrange
         user.AddProject(project);
         Assert.Contains(project, user.Projects);
-        
+
         // act
         user.DeleteProject(project.Id);
-        
+
         //assert
         user.Projects.Should().NotContain(project);
     }
-    
-    
 }
