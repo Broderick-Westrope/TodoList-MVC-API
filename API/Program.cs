@@ -6,6 +6,8 @@ var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONN
 
 // Add services to the container.
 
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(Assembly.Load("TodoList.Application")));
 builder.Services.AddControllers();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
