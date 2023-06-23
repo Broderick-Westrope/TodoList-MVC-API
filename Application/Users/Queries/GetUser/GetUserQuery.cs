@@ -1,9 +1,6 @@
 using MediatR;
 using TodoList.Application.Responses.User;
 
-namespace TodoList.Application.Users.Queries;
+namespace TodoList.Application.Users.Queries.GetUser;
 
-public record GetUserQuery : IRequest<GetUserResponse?>
-{
-    public Guid Id { get; set; }
-}
+public record GetUserQuery(Guid UserId) : IRequest<GetUserResponse?>;

@@ -4,7 +4,7 @@ using MediatR;
 using TodoList.Application.Responses.User;
 using TodoList.Domain;
 
-namespace TodoList.Application.Users.Queries;
+namespace TodoList.Application.Users.Queries.GetUser;
 
 public class GetUserQueryHandler : IRequestHandler<GetUserQuery, GetUserResponse?>
 {
@@ -19,7 +19,7 @@ public class GetUserQueryHandler : IRequestHandler<GetUserQuery, GetUserResponse
 
     public async Task<GetUserResponse?> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
-        var result = await _userRepository.GetWithInclude(request.Id, cancellationToken);
+        var result = await _userRepository.GetWithInclude(request.UserId, cancellationToken);
         return result?.Adapt<GetUserResponse>();
     }
 }

@@ -3,10 +3,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.Application.Requests.User;
-using TodoList.Application.Responses.Project;
 using TodoList.Application.Responses.TodoItem;
 using TodoList.Application.Responses.User;
-using TodoList.Application.Users.Queries;
+using TodoList.Application.Users.Queries.GetUser;
+using TodoList.Application.Users.Queries.GetUserProjects;
+using TodoList.Application.Users.Queries.GetUserTodoItems;
 using TodoList.Domain;
 using TodoList.Domain.Entities;
 
@@ -30,7 +31,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetUserQuery { Id = userId }, cancellationToken);
+        var response = await _sender.Send(new GetUserQuery(userId), cancellationToken);
         if (response == null) return NotFound();
 
         return Ok(response);
@@ -41,13 +42,10 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserProjectsResponse>> GetUserProjects([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Get(userId, cancellationToken);
-        if (user == null) return NotFound();
+        var response = await _sender.Send(new GetUserProjectsQuery(userId), cancellationToken);
+        if (response == null) return NotFound();
 
-        var projects = from p in user.Projects
-            select new GetProjectResponse(p.Id, p.Title);
-
-        return Ok(new GetUserProjectsResponse(projects.ToList()));
+        return Ok(response);
     }
 
     // GET: api/Users/:userId/TodoItems
@@ -55,13 +53,10 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserTodoItemsResponse>> GetUserTodoItems([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Get(userId, cancellationToken);
-        if (user == null) return NotFound();
+        var response = await _sender.Send(new GetUserTodoItemsQuery(userId), cancellationToken);
+        if (response == null) return NotFound();
 
-        var todoItems = from t in user.TodoItems
-            select new GetTodoItemResponse(t.Id, t.Title, t.Description, t.DueDate, t.IsCompleted);
-
-        return Ok(new GetUserTodoItemsResponse(todoItems.ToList()));
+        return Ok(response);
     }
 
     // PUT: api/Users/:userId
