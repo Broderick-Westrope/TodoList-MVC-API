@@ -14,14 +14,14 @@ using TodoList.Persistence;
 namespace API.IntegrationTests.Controllers;
 
 //TODO: Add cancellation tokens to tests
-public class TodoItemControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public class TodoItemsControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string TodoItemsUrl = "api/TodoItems";
     private readonly WebApplicationFactory<Program> _factory;
     private readonly Fixture _fixture = new();
     private readonly Stack<Guid> _userIds = new();
 
-    public TodoItemControllerShould(WebApplicationFactory<Program> factory)
+    public TodoItemsControllerShould(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }

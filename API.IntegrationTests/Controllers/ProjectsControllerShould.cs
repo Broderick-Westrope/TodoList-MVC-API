@@ -13,7 +13,7 @@ using TodoList.Persistence;
 
 namespace API.IntegrationTests.Controllers;
 
-public class ProjectControllerShould :
+public class ProjectsControllerShould :
     IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string ProjectsUrl = "api/Projects";
@@ -21,7 +21,7 @@ public class ProjectControllerShould :
     private readonly Fixture _fixture = new();
     private readonly Stack<Guid> _userIds = new();
 
-    public ProjectControllerShould(WebApplicationFactory<Program> factory)
+    public ProjectsControllerShould(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }

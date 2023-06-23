@@ -13,14 +13,14 @@ using TodoList.Persistence;
 
 namespace API.IntegrationTests.Controllers;
 
-public class UserControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+public class UsersControllerShould : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
     private const string UsersUrl = "api/Users";
     private readonly WebApplicationFactory<Program> _factory;
     private readonly Fixture _fixture = new();
     private readonly Stack<Guid> _userIds = new();
 
-    public UserControllerShould(WebApplicationFactory<Program> factory)
+    public UsersControllerShould(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }
