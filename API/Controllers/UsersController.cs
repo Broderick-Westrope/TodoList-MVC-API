@@ -1,10 +1,12 @@
 using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoList.Application.Requests.User;
 using TodoList.Application.Responses.Project;
 using TodoList.Application.Responses.TodoItem;
 using TodoList.Application.Responses.User;
+using TodoList.Application.Users.Queries;
 using TodoList.Domain;
 using TodoList.Domain.Entities;
 
@@ -14,11 +16,13 @@ namespace API.Controllers;
 [ApiController]
 public class UsersController : ControllerBase
 {
+    private readonly ISender _sender;
     private readonly IUserRepository _userRepository;
 
-    public UsersController(IUserRepository userRepository)
+    public UsersController(IUserRepository userRepository, ISender sender)
     {
         _userRepository = userRepository;
+        _sender = sender;
     }
 
     // GET: api/Users/:userId
@@ -26,11 +30,8 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetWithInclude(userId, cancellationToken);
-        if (user == null) return NotFound();
-
-        var response = new GetUserResponse(user.Id, user.Email, user.Password,
-            user.TodoItems!.Select(t => t.Id).ToList(), user.Projects!.Select(p => p.Id).ToList());
+        var response = await _sender.Send(new GetUserQuery { Id = userId }, cancellationToken);
+        if (response == null) return NotFound();
 
         return Ok(response);
     }

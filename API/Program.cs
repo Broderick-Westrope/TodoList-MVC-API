@@ -1,11 +1,13 @@
-using TodoList.Persistence;
+using System.Reflection;
+using API;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTION_STRING");
 
 // Add services to the container.
-
+builder.Services.AddMapster();
+builder.Services.RegisterMapsterConfiguration();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(Assembly.Load("TodoList.Application")));
 builder.Services.AddControllers();
