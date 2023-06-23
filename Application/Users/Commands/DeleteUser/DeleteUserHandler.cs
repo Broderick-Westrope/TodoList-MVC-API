@@ -7,10 +7,7 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserCommand, DeleteUserRe
 {
     private readonly IUserRepository _userRepository;
 
-    public DeleteUserHandler(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
+    public DeleteUserHandler(IUserRepository userRepository) => _userRepository = userRepository;
 
     public async Task<DeleteUserResult> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
