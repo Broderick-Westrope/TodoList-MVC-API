@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>TodoList.Infrastructure</AssemblyName>
+        <RootNamespace>TodoList.Infrastructure</RootNamespace>
+    </PropertyGroup>
+
+</Project>
