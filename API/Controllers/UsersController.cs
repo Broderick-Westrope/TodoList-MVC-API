@@ -84,3 +84,4 @@ public class UsersController : ControllerBase
 
         return result.IsUserFound ? NoContent() : NotFound();
     }
+}
