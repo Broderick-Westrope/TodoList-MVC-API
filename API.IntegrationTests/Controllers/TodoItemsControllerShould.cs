@@ -6,8 +6,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TodoList.Application.Requests.TodoItem;
-using TodoList.Application.Responses.TodoItem;
+using TodoList.Application.TodoItems.Commands.AddTodoItem;
+using TodoList.Application.TodoItems.Commands.UpdateTodoItem;
+using TodoList.Application.TodoItems.Queries.GetTodoItem;
 using TodoList.Domain.Entities;
 using TodoList.Persistence;
 
@@ -91,7 +92,7 @@ public class TodoItemsControllerShould : IClassFixture<WebApplicationFactory<Pro
         // assert
         postResponseMsg.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<CreateTodoItemResponse>();
+        var createTodoItemResponseObj = await postResponseMsg.Content.ReadFromJsonAsync<GetTodoItemResponse>();
         createTodoItemResponseObj.Should().NotBeNull();
         createTodoItemResponseObj!.Id.Should().NotBeEmpty();
 

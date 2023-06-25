@@ -6,8 +6,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TodoList.Application.Requests.Project;
-using TodoList.Application.Responses;
+using TodoList.Application.Projects.Commands.AddProject;
+using TodoList.Application.Projects.Commands.UpdateProject;
+using TodoList.Application.Projects.Queries.GetProject;
 using TodoList.Domain.Entities;
 using TodoList.Persistence;
 

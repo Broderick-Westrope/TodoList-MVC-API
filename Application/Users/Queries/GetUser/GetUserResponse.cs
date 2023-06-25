@@ -1,3 +1,3 @@
-namespace TodoList.Application.Responses.User;
+namespace TodoList.Application.Users.Queries.GetUser;
 
 public record GetUserResponse(Guid Id, string Email, string Password);

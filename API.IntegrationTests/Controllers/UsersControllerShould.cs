@@ -6,8 +6,11 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TodoList.Application.Requests.User;
-using TodoList.Application.Responses.User;
+using TodoList.Application.Users.Commands.AddUser;
+using TodoList.Application.Users.Commands.UpdateUser;
+using TodoList.Application.Users.Queries.GetUser;
+using TodoList.Application.Users.Queries.GetUserProjects;
+using TodoList.Application.Users.Queries.GetUserTodoItems;
 using TodoList.Domain.Entities;
 using TodoList.Persistence;
 

@@ -1,5 +1,4 @@
 using MediatR;
-using TodoList.Application.Requests.User;
 
 namespace TodoList.Application.Users.Commands.UpdateUser;
 

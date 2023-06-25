@@ -1,6 +1,4 @@
 using MediatR;
-using TodoList.Application.Requests.Project;
-using TodoList.Application.Requests.TodoItem;
 
 namespace TodoList.Application.TodoItems.Commands.UpdateTodoItem;
 

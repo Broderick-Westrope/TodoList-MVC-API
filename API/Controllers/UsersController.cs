@@ -1,7 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TodoList.Application.Requests.User;
-using TodoList.Application.Responses.User;
 using TodoList.Application.Users.Commands.AddUser;
 using TodoList.Application.Users.Commands.DeleteUser;
 using TodoList.Application.Users.Commands.UpdateUser;

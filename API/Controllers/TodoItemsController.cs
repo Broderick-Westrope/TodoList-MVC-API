@@ -1,8 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TodoList.Application.Requests.TodoItem;
-using TodoList.Application.Responses.TodoItem;
 using TodoList.Application.TodoItems.Commands.AddTodoItem;
 using TodoList.Application.TodoItems.Commands.DeleteTodoItem;
 using TodoList.Application.TodoItems.Commands.UpdateTodoItem;
@@ -38,7 +36,7 @@ public class TodoItemsController : ApiControllerBase
 
     // POST: api/TodoItems
     [HttpPost]
-    public async Task<ActionResult<CreateTodoItemResponse>> PostTodoItem([FromBody] CreateTodoItemRequest request,
+    public async Task<ActionResult<GetTodoItemResponse>> PostTodoItem([FromBody] CreateTodoItemRequest request,
         CancellationToken cancellationToken)
     {
         var result = await Sender.Send(new AddTodoItemCommand(request), cancellationToken);

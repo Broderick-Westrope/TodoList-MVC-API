@@ -1,7 +1,6 @@
 using Mapster;
 using MediatR;
-using TodoList.Application.Responses.TodoItem;
-using TodoList.Application.Responses.User;
+using TodoList.Application.TodoItems.Queries.GetTodoItem;
 using TodoList.Domain;
 
 namespace TodoList.Application.Users.Queries.GetUserTodoItems;

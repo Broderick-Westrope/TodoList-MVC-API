@@ -1,6 +1,5 @@
 using Mapster;
 using MediatR;
-using TodoList.Application.Responses.User;
 using TodoList.Domain;
 
 namespace TodoList.Application.Users.Queries.GetUser;

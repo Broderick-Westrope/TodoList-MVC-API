@@ -4,8 +4,6 @@ using TodoList.Application.Projects.Commands.AddProject;
 using TodoList.Application.Projects.Commands.DeleteProject;
 using TodoList.Application.Projects.Commands.UpdateProject;
 using TodoList.Application.Projects.Queries.GetProject;
-using TodoList.Application.Requests.Project;
-using TodoList.Application.Responses;
 
 namespace API.Controllers;
 

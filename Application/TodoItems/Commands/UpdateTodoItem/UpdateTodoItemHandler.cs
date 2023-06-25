@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TodoList.Application.Projects.Commands.UpdateProject;
-using TodoList.Application.Requests.TodoItem;
 using TodoList.Domain;
 
 namespace TodoList.Application.TodoItems.Commands.UpdateTodoItem;

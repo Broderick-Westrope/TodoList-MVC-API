@@ -1,6 +1,5 @@
 using Mapster;
 using MediatR;
-using TodoList.Application.Responses;
 using TodoList.Domain;
 
 namespace TodoList.Application.Projects.Queries.GetProject;
