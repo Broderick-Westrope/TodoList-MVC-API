@@ -14,21 +14,14 @@ namespace API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TodoItemsController : ControllerBase
+public class TodoItemsController : ApiControllerBase
 {
-    private readonly ISender _sender;
-
-    public TodoItemsController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     // GET: api/TodoItems/:todoItemId
     [HttpGet("{todoItemId}")]
     public async Task<ActionResult<GetTodoItemResponse>> GetTodoItem(Guid todoItemId,
         CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetTodoItemQuery(todoItemId), cancellationToken);
+        var response = await Sender.Send(new GetTodoItemQuery(todoItemId), cancellationToken);
 
         return response == null ? NotFound() : Ok(response);
     }
@@ -38,7 +31,7 @@ public class TodoItemsController : ControllerBase
     public async Task<IActionResult> PutTodoItem([FromRoute] Guid todoItemId, [FromBody] UpdateTodoItemRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new UpdateTodoItemCommand(todoItemId, request), cancellationToken);
+        var result = await Sender.Send(new UpdateTodoItemCommand(todoItemId, request), cancellationToken);
 
         return result.WasTodoItemFound ? NoContent() : NotFound();
     }
@@ -48,7 +41,7 @@ public class TodoItemsController : ControllerBase
     public async Task<ActionResult<CreateTodoItemResponse>> PostTodoItem([FromBody] CreateTodoItemRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new AddTodoItemCommand(request), cancellationToken);
+        var result = await Sender.Send(new AddTodoItemCommand(request), cancellationToken);
         if (result == null) return BadRequest("Could not find user with the given User ID.");
 
         var response = new GetTodoItemResponse(result.TodoItemId, request.Title, request.Description, request.DueDate, false);
@@ -60,7 +53,7 @@ public class TodoItemsController : ControllerBase
     [HttpDelete("{todoItemId}")]
     public async Task<IActionResult> DeleteTodoItem([FromRoute] Guid todoItemId, CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new DeleteTodoItemCommand(todoItemId), cancellationToken);
+        var result = await Sender.Send(new DeleteTodoItemCommand(todoItemId), cancellationToken);
         if (!result.WasUserFound) return BadRequest("Could not find user with the given TodoItem ID");
 
         return NoContent();

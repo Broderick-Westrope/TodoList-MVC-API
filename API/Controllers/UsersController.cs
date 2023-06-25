@@ -13,21 +13,14 @@ namespace API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class UsersController : ApiControllerBase
 {
-    private readonly ISender _sender;
-
-    public UsersController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     // GET: api/Users/:userId
     [HttpGet("{userId}")]
     public async Task<ActionResult<GetUserResponse>> GetUser([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetUserQuery(userId), cancellationToken);
+        var response = await Sender.Send(new GetUserQuery(userId), cancellationToken);
         if (response == null) return NotFound();
 
         return Ok(response);
@@ -38,7 +31,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserProjectsResponse>> GetUserProjects([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetUserProjectsQuery(userId), cancellationToken);
+        var response = await Sender.Send(new GetUserProjectsQuery(userId), cancellationToken);
         if (response == null) return NotFound();
 
         return Ok(response);
@@ -49,7 +42,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserTodoItemsResponse>> GetUserTodoItems([FromRoute] Guid userId,
         CancellationToken cancellationToken)
     {
-        var response = await _sender.Send(new GetUserTodoItemsQuery(userId), cancellationToken);
+        var response = await Sender.Send(new GetUserTodoItemsQuery(userId), cancellationToken);
         if (response == null) return NotFound();
 
         return Ok(response);
@@ -60,7 +53,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> PutUser([FromRoute] Guid userId, [FromBody] UpdateUserRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new UpdateUserCommand(userId, request), cancellationToken);
+        var result = await Sender.Send(new UpdateUserCommand(userId, request), cancellationToken);
 
         return result.IsUserFound ? NoContent() : NotFound();
     }
@@ -70,7 +63,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<GetUserResponse>> PostUser([FromBody] CreateUserRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new AddUserCommand(request), cancellationToken);
+        var result = await Sender.Send(new AddUserCommand(request), cancellationToken);
 
         var response = new GetUserResponse(result.UserId, request.Email, request.Password);
         return CreatedAtAction(nameof(GetUser), new { userId = result.UserId }, response);
@@ -80,7 +73,7 @@ public class UsersController : ControllerBase
     [HttpDelete("{userId}")]
     public async Task<IActionResult> DeleteUser([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new DeleteUserCommand(userId), cancellationToken);
+        var result = await Sender.Send(new DeleteUserCommand(userId), cancellationToken);
 
         return result.IsUserFound ? NoContent() : NotFound();
     }
