@@ -7,8 +7,6 @@ using TodoList.Application.Projects.Queries.GetProject;
 
 namespace API.Controllers;
 
-[Route("api/[controller]")]
-[ApiController]
 public class ProjectsController : ApiControllerBase
 {
     // GET: api/Projects/:projectId

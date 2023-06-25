@@ -10,8 +10,6 @@ using TodoList.Domain.Entities;
 
 namespace API.Controllers;
 
-[Route("api/[controller]")]
-[ApiController]
 public class TodoItemsController : ApiControllerBase
 {
     // GET: api/TodoItems/:todoItemId

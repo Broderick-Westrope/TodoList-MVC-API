@@ -9,8 +9,6 @@ using TodoList.Application.Users.Queries.GetUserTodoItems;
 
 namespace API.Controllers;
 
-[Route("api/[controller]")]
-[ApiController]
 public class UsersController : ApiControllerBase
 {
     // GET: api/Users/:userId
