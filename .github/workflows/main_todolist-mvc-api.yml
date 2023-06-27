@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      config: 'Release'
+
     steps:
       - uses: actions/checkout@v2
 
@@ -22,11 +25,17 @@ jobs:
           dotnet-version: '7.x'
           include-prerelease: true
 
+      - name: Install dependencies
+        run: dotnet restore
+
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration $config --no-restore
+        
+      - name: Test
+        run: dotnet test --no-restore --no-build --configuration $config
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c $config -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
