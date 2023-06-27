@@ -19,23 +19,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up .NET Core
+      - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '7.x'
           include-prerelease: true
 
-#       - name: Install dependencies
-#         run: dotnet restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Build
+        run: dotnet build --no-restore
         
       - name: Test
-        run: dotnet test --no-restore --no-build --configuration $config
+        run: dotnet test --no-build --verbosity normal
 
       - name: dotnet publish
-        run: dotnet publish -c $config -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish TodoList.MVC.API.sln -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
