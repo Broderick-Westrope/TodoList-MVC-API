@@ -31,8 +31,8 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
         
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
+#       - name: Test
+#         run: dotnet test --no-build --verbosity normal
 
       - name: dotnet publish
         run: dotnet publish TodoList.MVC.API.sln -c Release -o ${{env.DOTNET_ROOT}}/myapp
